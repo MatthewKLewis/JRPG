@@ -119,7 +119,8 @@ public class GameManager : MonoBehaviour
             {
                 new Character("Uef", 10, new Weapon("Axe", 3), true),
                 new Character("Bi", 10, new Weapon("Spear", 3), true),
-            }
+            },
+            journalContents = NewGameInformation.JOURNAL_START,
         };
         LoadInteriorScene(activeSave.subSceneName);
     }

@@ -3,16 +3,6 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-//public enum InteriorUIMode
-//{
-//    CLOSED = 0,
-//    PARTY = 1,
-//    EQUIPMENT = 2,
-//    ITEMS = 3,
-//    JOURNAL = 4,
-//    SAVE = 5,
-//}
-
 public class sInteriorUI : MonoBehaviour
 {
     private GameManager gM;
@@ -38,13 +28,13 @@ public class sInteriorUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI notifierText; //get rid of later and add convo script
 
     [Space(4)]
-    [SerializeField] private GameObject placeholderPanelPrefab;
-
-    [Space(4)]
     [SerializeField] private GameObject partyMenuPrefab;
     [SerializeField] private GameObject itemsMenuPrefab;
+    [SerializeField] private GameObject equipmentMenuPrefab;
+    [SerializeField] private GameObject journalMenuPrefab;
 
 
+    //ACTION REGISTRY
     private void Awake()
     {
         //interiorUIMode = InteriorUIMode.CLOSED;
@@ -60,7 +50,6 @@ public class sInteriorUI : MonoBehaviour
         menuPanel.localScale = Vector3.zero;
         conversationPanel.localScale = Vector3.zero;
     }
-
     private void OnDestroy()
     {
         Actions.OnProximityToInteractable -= ToggleInteractIndicator;
@@ -71,12 +60,13 @@ public class sInteriorUI : MonoBehaviour
         Actions.OnItemReceived -= HandleItemReceived;
     }
 
+
+    //MONOBEHAVIOR
     private void Start()
     {
         gM = GameManager.instance;
         isOpen = false;
     }
-
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Tab) || Input.GetKeyDown(KeyCode.Escape))
@@ -85,23 +75,6 @@ public class sInteriorUI : MonoBehaviour
             else { CloseMenuButton();}
         }
     }
-
-    public void SaveGameButton()
-    {
-        gM.SaveGame();
-    }
-    
-    public void QuitGameButton()
-    {
-        gM.QuitToDesktop();
-    }
-
-    private void ToggleInteractIndicator(bool show, string action)
-    {
-        interactText.text = "Press E to " + action;
-        interactIndicator.localScale = show ? Vector3.one : Vector3.zero;
-    }
-
     private void OpenMenu()
     {
         menuPanel.localScale = Vector3.one;
@@ -110,24 +83,31 @@ public class sInteriorUI : MonoBehaviour
         FillPartyInfo();
     }
 
+
+    //HANDLERS
     private void HandleConversationStart(sNPC npc)
     {
         conversationPanel.localScale = Vector3.one;
         conversationText.text = npc.utterance;
         print(npc.utterance);
     }
-
     private void HandleConversationEnd()
     {
         conversationPanel.localScale = Vector3.zero;
     }
-
     private void HandleItemReceived(Weapon wep)
     {
         print(wep.Name);
         ShowNotifier(wep.Name + " added to inventory.");
+    }    
+    private void ToggleInteractIndicator(bool show, string action)
+    {
+        interactText.text = "Press E to " + action;
+        interactIndicator.localScale = show ? Vector3.one : Vector3.zero;
     }
 
+
+    //NOTIFIER
     private void ShowNotifier(string text)
     {
         notifierPanel.transform.position = notifierIBT.position;
@@ -141,6 +121,7 @@ public class sInteriorUI : MonoBehaviour
         notifierPanel.transform.position = notifierOBT.position;
     }
 
+
     //BUTTONS
     public void CloseMenuButton()
     {
@@ -148,11 +129,6 @@ public class sInteriorUI : MonoBehaviour
         menuPanel.localScale = Vector3.zero;
         //interiorUIMode = InteriorUIMode.CLOSED;
         isOpen = false;
-    }
-    public void PartyButton()
-    {
-        ClearMenuContentParent();
-        FillPartyInfo();
     }
     public void EquipmentButton()
     {
@@ -164,15 +140,27 @@ public class sInteriorUI : MonoBehaviour
         ClearMenuContentParent();
         FillItemsInfo();
     }
-
-    private void ClearMenuContentParent()
+    public void JournalButton()
     {
-        foreach (Transform child in menuContentParent)
-        {
-            Destroy(child.gameObject);
-        }
+        ClearMenuContentParent();
+        FillJournalInfo();
+    }
+    public void PartyButton()
+    {
+        ClearMenuContentParent();
+        FillPartyInfo();
+    }
+    public void QuitGameButton()
+    {
+        gM.QuitToDesktop();
+    }
+    public void SaveGameButton()
+    {
+        gM.SaveGame();
     }
 
+
+    //MENU CONTENT FILLING
     private void FillPartyInfo()
     {
         ClearMenuContentParent();
@@ -181,11 +169,26 @@ public class sInteriorUI : MonoBehaviour
     private void FillEquipmentInfo()
     {
         ClearMenuContentParent();
-        Instantiate(placeholderPanelPrefab, menuContentParent);
+        Instantiate(equipmentMenuPrefab, menuContentParent);
     }
     private void FillItemsInfo()
     {
         ClearMenuContentParent();
         Instantiate(itemsMenuPrefab, menuContentParent);
+    }
+    private void FillJournalInfo()
+    {
+        ClearMenuContentParent();
+        Instantiate(journalMenuPrefab, menuContentParent);
+    }
+
+
+    //UTILITY
+    private void ClearMenuContentParent()
+    {
+        foreach (Transform child in menuContentParent)
+        {
+            Destroy(child.gameObject);
+        }
     }
 }

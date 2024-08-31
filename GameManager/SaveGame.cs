@@ -12,6 +12,8 @@ public class SaveGame
     public float y;
     public float z;
 
+    public string journalContents;
+
     //
     public List<Character> teamMembers;
 
