@@ -92,7 +92,7 @@ public class sBattleAnimator : MonoBehaviour
         animationFinished = true;
 
         //reset
-        ResetForNextAnimation();
+        //ResetForNextAnimation();
     }
     public IEnumerator PlayDeathCoroutine()
     {

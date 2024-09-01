@@ -63,6 +63,10 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
 {
     public static BattleManager instance;
 
+    [Space(4)]
+    [Header("Magic Camera")]
+    [SerializeField] private sMagicCamera magicCamera;
+
     private Vector3[][] spawnPositions = new Vector3[][] {
         new Vector3[]{ new Vector3(0, 0, -5)},
         new Vector3[]{ new Vector3(2, 0, -5), new Vector3(-2, 0, -5)},
@@ -77,16 +81,12 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
 
     [Space(4)]
     [Header("Text Fields")]
-    //[SerializeField] private TextMeshProUGUI adminText;
     [SerializeField] private TextMeshProUGUI currentText;
     [SerializeField] private TextMeshProUGUI activeCharacterText;
 
     [Space(4)]
     [Header("Camera")]
-    [SerializeField] private Transform magicCamera;
-    [SerializeField] private Transform cameraTarget;
     [SerializeField] private Transform spotlight;
-    private Vector3 cameraTargetGoal = Vector3.zero;
 
     [Space(4)]
     [SerializeField] private Button attackButton;
@@ -146,6 +146,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     }
 
 
+    //MONOBEHAVIOR
     private void Awake()
     {
         //SINGLETON, NOT CARRIED FROM SCENE TO SCENE THOUGH.
@@ -173,18 +174,6 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
         StartCoroutine(FlyoverThenAdvanceTurn());
     }
     
-
-    //CAMERA LOGIC
-    private void Update()
-    {
-            cameraTarget.position = Vector3.Lerp(cameraTarget.position, cameraTargetGoal, 0.01f);
-            magicCamera.LookAt(cameraTarget);
-    }
-    public void FocusCameraOn(Vector3 pos)
-    {
-        cameraTargetGoal = pos;
-        spotlight.position = pos;
-    }
 
     //SET UP
     private void LoadTeam()
@@ -352,6 +341,10 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
 
         //Advance
         print(ActiveCharacter.Name + "'s turn.");
+
+        //Focus Camera
+        magicCamera.FocusCameraOn(ActiveCharacter);
+
         if (ActiveCharacter.isDead)
         {
             print("Would have been " + ActiveCharacter.Name + "'s turn but he's dead.");
@@ -417,7 +410,9 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
             default:
                 break;
         }
-        
+
+        //Wait until animation is complete
+        //Therefore, camera should focus on the action here
         yield return new WaitUntil(() => ActiveCharacter.animator.animationFinished);
         DisplayDamageIndicator(choices, damage);
 
@@ -436,6 +431,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
         yield return new WaitForSeconds(3.5f);
         AdvanceTurn();
     }
+
 
     //VIEW
     private void AddCurrentText(string text)
@@ -460,7 +456,10 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
             null
         ).GetComponent<sDamagePopup>().FillInfo(damage);
     }
-
+    public void Spotlight(Vector3 newPos)
+    {
+        spotlight.position = newPos + Vector3.up * 3;
+    }
 
     //DEBUG
     private void OnDrawGizmos()

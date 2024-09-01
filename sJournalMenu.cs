@@ -12,7 +12,7 @@ public class sJournalMenu : MonoBehaviour
     [SerializeField] private TextMeshProUGUI pageText;
     [SerializeField] private TextMeshProUGUI pageNumberText;
 
-    private readonly int CHUNK_SIZE = 10;
+    private readonly int CHUNK_SIZE = 600;
     private List<string> journalPageContent;
 
     void Start()

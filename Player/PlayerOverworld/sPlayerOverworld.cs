@@ -9,8 +9,10 @@ public class sPlayerOverworld : MonoBehaviour
     private GameManager gM;
     private CharacterController cC;
     private float playerSpeed = 5f;
+    private float rotateSpeed = 40f;
 
-    private string potentialNextSubSceneName = "";
+    //Potential Assets to Act Upon
+    private sDoor doorAffordance;
 
     //private float distanceTraveled = 0f;
 
@@ -27,9 +29,9 @@ public class sPlayerOverworld : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.E))
         {
-            if (potentialNextSubSceneName != "")
+            if (doorAffordance != null)
             {
-                gM.LoadInteriorScene(potentialNextSubSceneName);
+                gM.LoadInteriorScene(doorAffordance.interiorSubSceneName);
             }
         }
     }
@@ -37,21 +39,23 @@ public class sPlayerOverworld : MonoBehaviour
     private void FixedUpdate()
     {
         Vector3 inputVector = new Vector3(
-            Input.GetKey(KeyCode.D) ? 1 : Input.GetKey(KeyCode.A) ? -1 : 0, 0,
+            0, 0, //Input.GetKey(KeyCode.D) ? 1 : Input.GetKey(KeyCode.A) ? -1 : 0, 0,
             Input.GetKey(KeyCode.W) ? 1 : Input.GetKey(KeyCode.S) ? -1 : 0
             ).normalized * playerSpeed * Time.deltaTime;
+
+        Vector3 inputRotate = new Vector3( 0, Input.GetKey(KeyCode.D) ? 1f : Input.GetKey(KeyCode.A) ? -1 : 0, 0) * rotateSpeed * Time.deltaTime;
 
         if (!cC.isGrounded)
         {
             if (Physics.Raycast(transform.position, Vector3.down, out worldHit, 100f, worldLayerMask))
             {
-                //print(worldHit.point);
                 inputVector.y = -1;
             }
         }
 
-        //set velocity
-        cC.Move(inputVector);
+        //Move and Rotate
+        transform.Rotate(inputRotate);
+        cC.Move(transform.TransformDirection(inputVector));
     }
 
     private void OnTriggerEnter(Collider other)
@@ -60,7 +64,7 @@ public class sPlayerOverworld : MonoBehaviour
         {
             case ("Door"):
                 Actions.OnProximityToInteractable(true, "Enter");
-                potentialNextSubSceneName = other.GetComponent<sDoor>().interiorSubSceneName;
+                doorAffordance = other.GetComponent<sDoor>();
                 break;
             case ("NPC"):
                 //who?
@@ -77,7 +81,7 @@ public class sPlayerOverworld : MonoBehaviour
         {
             case ("Door"):
                 Actions.OnProximityToInteractable(false, "");
-                potentialNextSubSceneName = "";
+                doorAffordance = null;
                 break;
             case ("NPC"):
                 //who?

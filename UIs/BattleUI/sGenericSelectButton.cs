@@ -105,7 +105,7 @@ public class sGenericSelectButton: MonoBehaviour, IPointerEnterHandler
     {
         if (selectType == SelectPanelType.ENEMY && charThisButtonRepresents != null)
         {
-            bM.FocusCameraOn(charThisButtonRepresents.animator.gameObject.transform.position);
+            bM.Spotlight(charThisButtonRepresents.animator.gameObject.transform.position);
         }
     }
 }

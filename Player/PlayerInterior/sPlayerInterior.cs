@@ -12,8 +12,7 @@ public class sPlayerInterior : MonoBehaviour
 
     [SerializeField] private Transform meshTransform;
 
-    //Potential Interior Assets to Act Upon
-
+    //Potential Assets to Act Upon
     private sDoor doorAffordance;
     private sGate gateAffordance;
     private sNPC npcAffordance;
