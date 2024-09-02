@@ -91,7 +91,7 @@ public class GameManager : MonoBehaviour
             saveGames[i] = convertedSave;
         }
     }
-    public void SaveGame()
+    public string SaveGame(int slot)
     {
         activeSave.dateCreated = DateTime.Now.ToString();
         activeSave.x = 0;
@@ -101,7 +101,8 @@ public class GameManager : MonoBehaviour
         string saveJson = JsonConvert.SerializeObject(activeSave);
 
         //TODO, allow user to choose slot
-        File.WriteAllText(Application.persistentDataPath + "/save0.json", saveJson);
+        File.WriteAllText(Application.persistentDataPath + "/save"+ slot.ToString() +".json", saveJson);
+        return activeSave.dateCreated;
     }
 
 
@@ -115,11 +116,8 @@ public class GameManager : MonoBehaviour
             gold = 20,
             subSceneName = "HouseSubScene",
             inventory = new List<Item>() {new Item("Molotov", true), },
-            teamMembers = new List<Character>()
-            {
-                new Character("Uef", 10, new Weapon("Axe", 3), true),
-                new Character("Bi", 10, new Weapon("Spear", 3), true),
-            },
+            armaments = new List<Weapon>(),
+            teamMembers = NewGameInformation.STARTING_CHARACTERS,
             journalContents = NewGameInformation.JOURNAL_START,
         };
         LoadInteriorScene(activeSave.subSceneName);

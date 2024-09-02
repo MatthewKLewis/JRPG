@@ -14,9 +14,7 @@ public static class ProcGen
         int randInt = Random.Range(1, 4);
         return new List<Character>()
         {
-            new Character("Gobbie", 4, new Weapon("Club", 1), false),
-            new Character("Hardsuit", 4, new Weapon("Club", 1), false),
-            new Character("Gobbie", 4, new Weapon("Club", 1), false),
+            new Character("Hardsuit", 12, new Weapon("Club", 1), false),
         };
     }
 

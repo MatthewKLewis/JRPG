@@ -9,10 +9,11 @@ public class Spell
     public bool UsedOnEnemies;
     public ElementTypeEnum ElementType;
         
-    public Spell(string name, bool usedOnEnemies)
+    public Spell(string name, bool usedOnEnemies, ElementTypeEnum element)
     {
         this.Name = name;
         this.PrefabDictionaryName = name;
         this.UsedOnEnemies = usedOnEnemies;
+        this.ElementType = element;
     }
 }

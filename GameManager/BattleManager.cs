@@ -413,7 +413,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
 
         //Wait until animation is complete
         //Therefore, camera should focus on the action here
-        yield return new WaitUntil(() => ActiveCharacter.animator.animationFinished);
+        yield return new WaitUntil(() => ActiveCharacter.animator.AnimationFinished);
         DisplayDamageIndicator(choices, damage);
 
         if (choices.Target.TakeDamageReturnTrueIfDead(damage))
@@ -451,7 +451,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     private void DisplayDamageIndicator(BattleChoice choices, Damage damage)
     {
         Instantiate(GameManager.instance.gameObjectDictionary.GetValueOrDefault("DAMAGE_POPUP"),
-            choices.TargetPosition + Vector3.up * 3,
+            choices.TargetPosition + Vector3.up * choices.Target.animator.MeshSize.y + Vector3.up,
             Quaternion.identity,
             null
         ).GetComponent<sDamagePopup>().FillInfo(damage);

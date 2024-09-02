@@ -5,6 +5,7 @@ public class Item
 {
     public string Name;
     public string PrefabDictionaryName;
+    public int Quantity;
 
     public bool UsedOnEnemies;
 

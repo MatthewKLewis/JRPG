@@ -8,7 +8,11 @@ public class sDamagePopup : MonoBehaviour
     [SerializeField] private TextMeshProUGUI damageText;
     [SerializeField] private AnimationCurve opacityCurve;
     [SerializeField] private AnimationCurve fontSizeCurve;
+
     private float time = 0f;
+    private float r = 1f;
+    private float g = 1f;
+    private float b = 1f;
 
     private void Start()
     {
@@ -17,7 +21,7 @@ public class sDamagePopup : MonoBehaviour
 
     private void Update()
     {
-        damageText.color = new Color(1, 1, 1, opacityCurve.Evaluate(time));
+        damageText.color = new Color(r, g, b, opacityCurve.Evaluate(time));
         damageText.fontSize = fontSizeCurve.Evaluate(time);
         time += Time.deltaTime;
     }
@@ -27,13 +31,19 @@ public class sDamagePopup : MonoBehaviour
         switch (damage.ElementType)
         {
             case (ElementTypeEnum.PHYSICAL):
-                damageText.color = Color.white;
+                r = 1f;
+                g = 1f;
+                b = 1f;
                 break;
             case (ElementTypeEnum.FIRE):
-                damageText.color = Color.red;
+                r = 1f;
+                g = 0f;
+                b = 0f;
                 break;
             case (ElementTypeEnum.ICE):
-                damageText.color = Color.blue;
+                r = 0f;
+                g = 0f;
+                b = 1f;
                 break;
             default:
                 break;

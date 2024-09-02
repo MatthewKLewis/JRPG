@@ -51,9 +51,12 @@ public class sMagicCamera : MonoBehaviour
 
     public void FocusCameraOn(Character activeCharacter)
     {
-        ROTATE_SPEED = -ROTATE_SPEED;
-        transform.position = activeCharacter.animator.transform.position;
-        transform.rotation = activeCharacter.animator.transform.rotation;
+        if (activeCharacter.PlayerControlled)
+        {
+            ROTATE_SPEED = -ROTATE_SPEED;
+            transform.position = activeCharacter.animator.transform.position;
+            transform.rotation = activeCharacter.animator.transform.rotation;
+        }
     }
 
     private void OnDrawGizmos()

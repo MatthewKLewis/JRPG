@@ -32,6 +32,7 @@ public class sInteriorUI : MonoBehaviour
     [SerializeField] private GameObject itemsMenuPrefab;
     [SerializeField] private GameObject equipmentMenuPrefab;
     [SerializeField] private GameObject journalMenuPrefab;
+    [SerializeField] private GameObject saveMenuPrefab;
 
 
     //ACTION REGISTRY
@@ -112,7 +113,7 @@ public class sInteriorUI : MonoBehaviour
     {
         notifierPanel.transform.position = notifierIBT.position;
         notifierText.text = text;
-        StartCoroutine(HideNotifierAfter(1));
+        StartCoroutine(HideNotifierAfter(1.5f));
     }
     private IEnumerator HideNotifierAfter(float timeInSeconds)
     {
@@ -132,22 +133,18 @@ public class sInteriorUI : MonoBehaviour
     }
     public void EquipmentButton()
     {
-        ClearMenuContentParent();
         FillEquipmentInfo();
     }
     public void ItemsButton()
     {
-        ClearMenuContentParent();
         FillItemsInfo();
     }
     public void JournalButton()
     {
-        ClearMenuContentParent();
         FillJournalInfo();
     }
     public void PartyButton()
     {
-        ClearMenuContentParent();
         FillPartyInfo();
     }
     public void QuitGameButton()
@@ -156,7 +153,7 @@ public class sInteriorUI : MonoBehaviour
     }
     public void SaveGameButton()
     {
-        gM.SaveGame();
+        FillSaveInfo();
     }
 
 
@@ -180,6 +177,11 @@ public class sInteriorUI : MonoBehaviour
     {
         ClearMenuContentParent();
         Instantiate(journalMenuPrefab, menuContentParent);
+    }
+    private void FillSaveInfo()
+    {
+        ClearMenuContentParent();
+        Instantiate(saveMenuPrefab, menuContentParent);
     }
 
 

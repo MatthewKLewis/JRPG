@@ -36,7 +36,7 @@ public class Character
         this.Initiative = -1;
         this.Level = 1;
 
-        this.SpellsKnown = new List<Spell>() { new Spell("Fireball", true), new Spell("Heal", false) };
+        this.SpellsKnown = new List<Spell>() { new Spell("Fireball", true, ElementTypeEnum.FIRE), new Spell("Heal", false, ElementTypeEnum.ICE) };
     }
 
     public void RollInitiative()
