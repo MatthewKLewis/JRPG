@@ -266,7 +266,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     public void ItemButton()
     {
         DestroyAllChildrenOf(originalSelectPanelParent);
-        Instantiate(genericSelectPanel, originalSelectPanelParent).GetComponent<sGenericSelectPanel>().FillItemInfo(gM.activeSave.inventory, new BattleChoice());
+        Instantiate(genericSelectPanel, originalSelectPanelParent).GetComponent<sGenericSelectPanel>().FillItemInfo(gM.activeSave.Inventory, new BattleChoice());
     }
 
 

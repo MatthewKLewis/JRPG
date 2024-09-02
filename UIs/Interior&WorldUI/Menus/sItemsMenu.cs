@@ -9,7 +9,7 @@ public class sItemsMenu : MonoBehaviour
 
     void Start()
     {
-        foreach (Item item in GameManager.instance.activeSave.inventory)
+        foreach (Item item in GameManager.instance.activeSave.Inventory)
         {
             Instantiate(itemRowPrefab, this.transform).GetComponent<sItemRow>().FillInfo(item);
         }

@@ -115,8 +115,6 @@ public class GameManager : MonoBehaviour
             dateCreated = DateTime.Now.ToString(),
             gold = 20,
             subSceneName = "HouseSubScene",
-            inventory = new List<Item>() {new Item("Molotov", true), },
-            armaments = new List<Weapon>(),
             teamMembers = NewGameInformation.STARTING_CHARACTERS,
             journalContents = NewGameInformation.JOURNAL_START,
         };
@@ -239,7 +237,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
 
         AsyncOperation operation = SceneManager.LoadSceneAsync("BattleScene");
-        AsyncOperation subOperation = SceneManager.LoadSceneAsync("CavePitBSS", LoadSceneMode.Additive);
+        AsyncOperation subOperation = SceneManager.LoadSceneAsync("DesertBBS", LoadSceneMode.Additive); //BBS tagged
         operation.allowSceneActivation = false;
         subOperation.allowSceneActivation = false;
 

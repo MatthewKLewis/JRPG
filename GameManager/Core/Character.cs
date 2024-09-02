@@ -8,9 +8,11 @@ public class Character
     public string PrefabDictionaryName;
 
     //NON-SERIALIZED! Injected upon battle start!
+    //MUST be deleted after battle scenes before saving.
     public sBattleAnimator animator;
 
     public Weapon HeldWeapon;
+    public Resistances Resistances = new Resistances();
 
     public List<Spell> SpellsKnown = new List<Spell>();
 
@@ -36,7 +38,10 @@ public class Character
         this.Initiative = -1;
         this.Level = 1;
 
-        this.SpellsKnown = new List<Spell>() { new Spell("Fireball", true, ElementTypeEnum.FIRE), new Spell("Heal", false, ElementTypeEnum.ICE) };
+        this.SpellsKnown = new List<Spell>() { 
+            new Spell("Fireball", true, 3, ElementTypeEnum.FIRE), 
+            new Spell("Heal", false, -5, ElementTypeEnum.ICE) 
+        };
     }
 
     public void RollInitiative()
@@ -46,17 +51,26 @@ public class Character
 
     public Damage GetAttackDamage(BattleChoice choices)
     {
-        return new Damage() { Amount = this.HeldWeapon.Damage, ElementType = ElementTypeEnum.PHYSICAL};
+        int damage = 0;
+        damage += this.HeldWeapon.Damage;
+        damage += this.Level;
+        return new Damage() { Amount = damage, ElementType = ElementTypeEnum.PHYSICAL};
     }
 
     public Damage GetSpellDamage(BattleChoice choices)
     {
-        return new Damage() { Amount = 5, ElementType = ElementTypeEnum.FIRE };
+        int damage = 0;
+        damage += choices.Spell.Damage;
+        damage += this.Level;
+        return new Damage() { Amount = damage, ElementType = ElementTypeEnum.FIRE };
     }
 
     public Damage GetItemDamage(BattleChoice choices)
     {
-        return new Damage() { Amount = 10, ElementType = ElementTypeEnum.FIRE };
+        int damage = 0;
+        damage += choices.Item.Damage;
+        damage += this.Level;
+        return new Damage() { Amount = damage, ElementType = ElementTypeEnum.FIRE };
     }
 
     public bool TakeDamageReturnTrueIfDead(Damage damage)

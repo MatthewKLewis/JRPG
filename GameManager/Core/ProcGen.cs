@@ -20,6 +20,10 @@ public static class ProcGen
 
     public static Weapon RandomWeapon()
     {
-        return new Weapon("Bad Gun", 5);
+        return new Weapon("9mm Handgun", 5);
+    }
+    public static Item RandomItem()
+    {
+        return new Item("Molotov", 5, true);
     }
 }

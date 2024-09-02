@@ -31,7 +31,7 @@ public class sPlayerInterior : MonoBehaviour
         {
             if (containerAffordance != null) {
                 Actions.OnItemReceived(containerAffordance.weaponInContainer);
-                gM.activeSave.armaments.Add(containerAffordance.weaponInContainer);
+                gM.activeSave.AddArmament(containerAffordance.weaponInContainer);
             }
             else if (npcAffordance != null) {
                 Actions.OnConversationStart(npcAffordance);

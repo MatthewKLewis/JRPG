@@ -7,11 +7,17 @@ public class Item
     public string PrefabDictionaryName;
     public int Quantity;
 
-    public bool UsedOnEnemies;
+    public int Damage;
 
-    public Item(string name, bool usedOnEnemies)
+    public bool UsedOnEnemies;
+    public bool UsedOnAll;
+    public ElementTypeEnum ElementType;
+
+
+    public Item(string name, int damage, bool usedOnEnemies)
     {
         this.Name = name;
+        this.Damage = damage;
         this.PrefabDictionaryName = name;
         this.UsedOnEnemies = usedOnEnemies;
     }
