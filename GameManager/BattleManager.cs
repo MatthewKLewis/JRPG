@@ -70,7 +70,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     private Vector3[][] spawnPositions = new Vector3[][] {
         new Vector3[]{ new Vector3(0, 0, -5)},
         new Vector3[]{ new Vector3(2, 0, -5), new Vector3(-2, 0, -5)},
-        new Vector3[]{ new Vector3(4, 0, -5), new Vector3(0, 0, -5), new Vector3(-4, 0, -5)},
+        new Vector3[]{ new Vector3(-4, 0, -5), new Vector3(0, 0, -5), new Vector3(4, 0, -5)},
     }; //1, 2, or 3 spawns
 
     private GameManager gM;
@@ -78,6 +78,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     private int turnsTaken = -1;
 
     public List<Character> combatants = new List<Character>();
+    public List<Character> combatantsNonInitOrder = new List<Character>(); //?
 
     [Space(4)]
     [Header("Text Fields")]
@@ -132,6 +133,8 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     {
         get { return combatants.FindAll(c => !c.PlayerControlled && c.isDead); }
     }
+
+    //sort these
     public List<Character> FriendlyCharacters
     {
         get { return combatants.FindAll(c => c.PlayerControlled); }
@@ -184,7 +187,6 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
             Character teammate = gM.activeSave.teamMembers[i];
             string teammateBattlePrefabName = gM.activeSave.teamMembers[i].PrefabDictionaryName;
             combatants.Add(teammate);
-            teammate.RollInitiative();
 
             //make ui rows for team members
             Instantiate(teamMemberRowPrefab, teamPanel).GetComponent<sTeamMemberInfoRow>().FillInfo(teammate);
@@ -203,6 +205,8 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
                     Quaternion.identity);
                 teammate.animator = tempTeamGo.GetComponent<sBattleAnimator>();
             }
+
+            teammate.RollInitiative();
         }
     }
     private void LoadEnemies()
@@ -266,7 +270,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     public void ItemButton()
     {
         DestroyAllChildrenOf(originalSelectPanelParent);
-        Instantiate(genericSelectPanel, originalSelectPanelParent).GetComponent<sGenericSelectPanel>().FillItemInfo(gM.activeSave.Inventory, new BattleChoice());
+        Instantiate(genericSelectPanel, originalSelectPanelParent).GetComponent<sGenericSelectPanel>().FillItemInfo(gM.activeSave.inventory, new BattleChoice());
     }
 
 
@@ -285,6 +289,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
                 AddCurrentText(ActiveCharacter.Name + " uses " + choices.Spell.Name + " on " + choices.Target.Name);
                 break;
             case BattleChoiceEnum.ITEM:
+                gM.activeSave.UseItem(choices.Item);
                 AddCurrentText(ActiveCharacter.Name + " casts spell: " + choices.Item.Name + " on " + choices.Target.Name);
                 break;
             default:
@@ -340,7 +345,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
         }
 
         //Advance
-        print(ActiveCharacter.Name + "'s turn.");
+        //print(ActiveCharacter.Name + "'s turn.");
 
         //Focus Camera
         magicCamera.FocusCameraOn(ActiveCharacter);

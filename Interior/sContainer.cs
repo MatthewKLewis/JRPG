@@ -4,6 +4,6 @@ using UnityEngine;
 
 public class sContainer : MonoBehaviour
 {
-    public Weapon weaponInContainer = ProcGen.RandomWeapon();
+    //public Weapon weaponInContainer = ProcGen.RandomWeapon();
     public Item itemInContainer = ProcGen.RandomItem();
 }

@@ -110,14 +110,7 @@ public class GameManager : MonoBehaviour
     public void StartNewGame()
     {
         print("Start Game!");
-        activeSave = new SaveGame()
-        {
-            dateCreated = DateTime.Now.ToString(),
-            gold = 20,
-            subSceneName = "HouseSubScene",
-            teamMembers = NewGameInformation.STARTING_CHARACTERS,
-            journalContents = NewGameInformation.JOURNAL_START,
-        };
+        activeSave = NewGameInformation.STARTING_SAVE_FILE;
         LoadInteriorScene(activeSave.subSceneName);
     }
     public void LoadSavedGame(int slot)

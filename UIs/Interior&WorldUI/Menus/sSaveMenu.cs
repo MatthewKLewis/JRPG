@@ -27,7 +27,6 @@ public class sSaveMenu : MonoBehaviour
 
     public void SaveInSlot(int slot)
     {
-        print(slot.ToString());
         string newButtonText = gM.SaveGame(slot);
         saveButtonTexts[slot].text = newButtonText;
     }

@@ -12,36 +12,36 @@ public enum MagicCameraMode
 
 public class sMagicCamera : MonoBehaviour
 {
-    private MagicCameraMode cameraMode;
-    private Vector3 cameraDistanceFromGimbal = new Vector3(10, 6, 0);
+    //private MagicCameraMode cameraMode;
+
     [SerializeField] private Camera cam;
     [SerializeField] private Transform cameraTransform;
-
-    private float timeSinceLastCut;
 
     private float ROTATE_SPEED = 1f;
 
     void Start()
     {
-        cameraMode = MagicCameraMode.IDLE;
+        //cameraMode = MagicCameraMode.IDLE;
+        transform.localScale = Vector3.one * 3f;
     }
 
     void Update()
     {
-        switch (cameraMode)
-        {
-            case MagicCameraMode.IDLE:
-                IdleCameraUpdate();
-                break;
-            case MagicCameraMode.FOCUS:
-                break;
-            case MagicCameraMode.VICTORY:
-                break;
-            case MagicCameraMode.INTRO:
-                break;
-            default:
-                break;
-        }
+        IdleCameraUpdate();
+
+        //switch (cameraMode)
+        //{
+        //    case MagicCameraMode.IDLE:
+        //        break;
+        //    case MagicCameraMode.FOCUS:
+        //        break;
+        //    case MagicCameraMode.VICTORY:
+        //        break;
+        //    case MagicCameraMode.INTRO:
+        //        break;
+        //    default:
+        //        break;
+        //}
     }
 
     private void IdleCameraUpdate()
@@ -56,6 +56,12 @@ public class sMagicCamera : MonoBehaviour
             ROTATE_SPEED = -ROTATE_SPEED;
             transform.position = activeCharacter.animator.transform.position;
             transform.rotation = activeCharacter.animator.transform.rotation;
+            transform.localScale = Vector3.one;
+        }
+        else
+        {
+            transform.position = Vector3.zero;
+            transform.localScale = Vector3.one * 3f;
         }
     }
 

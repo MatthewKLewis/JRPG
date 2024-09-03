@@ -5,6 +5,7 @@ using UnityEngine;
 public class Character
 {
     public string Name;
+    public int ID;
     public string PrefabDictionaryName;
 
     //NON-SERIALIZED! Injected upon battle start!

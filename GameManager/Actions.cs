@@ -14,5 +14,5 @@ public class Actions
     public static Action<sNPC> OnConversationStart;
     public static Action OnConversationEnd;
 
-    public static Action<Weapon> OnItemReceived;
+    public static Action<Item> OnItemReceived;
 }

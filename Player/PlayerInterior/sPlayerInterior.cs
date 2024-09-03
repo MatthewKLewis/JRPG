@@ -30,8 +30,8 @@ public class sPlayerInterior : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.E))
         {
             if (containerAffordance != null) {
-                Actions.OnItemReceived(containerAffordance.weaponInContainer);
-                gM.activeSave.AddArmament(containerAffordance.weaponInContainer);
+                Actions.OnItemReceived(containerAffordance.itemInContainer);
+                gM.activeSave.AddItem(containerAffordance.itemInContainer);
             }
             else if (npcAffordance != null) {
                 Actions.OnConversationStart(npcAffordance);

@@ -28,27 +28,37 @@ public class sDamagePopup : MonoBehaviour
 
     public void FillInfo(Damage damage)
     {
-        switch (damage.ElementType)
+        if (damage.Amount < 0)
         {
-            case (ElementTypeEnum.PHYSICAL):
-                r = 1f;
-                g = 1f;
-                b = 1f;
-                break;
-            case (ElementTypeEnum.FIRE):
-                r = 1f;
-                g = 0f;
-                b = 0f;
-                break;
-            case (ElementTypeEnum.ICE):
-                r = 0f;
-                g = 0f;
-                b = 1f;
-                break;
-            default:
-                break;
+            r = 0f;
+            g = 1f;
+            b = 0f;
+            damageText.text = "+" + (damage.Amount * -1).ToString();
         }
+        else
+        {
+            switch (damage.ElementType)
+            {
+                case (ElementTypeEnum.PHYSICAL):
+                    r = 1f;
+                    g = 1f;
+                    b = 1f;
+                    break;
+                case (ElementTypeEnum.FIRE):
+                    r = 1f;
+                    g = 0f;
+                    b = 0f;
+                    break;
+                case (ElementTypeEnum.ICE):
+                    r = 0f;
+                    g = 0f;
+                    b = 1f;
+                    break;
+                default:
+                    break;
+            }
         damageText.text = damage.Amount.ToString();
+        }
     }
 
 }

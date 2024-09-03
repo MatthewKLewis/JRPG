@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class SaveGame
 {
-    //
     public string dateCreated;
     public string subSceneName;
     public bool onOverworldMap;
@@ -18,10 +17,8 @@ public class SaveGame
 
     public int gold;
 
-    private List<Item> _inventory = new List<Item>();
-    private List<Weapon> _armaments = new List<Weapon>();
-    public List<Item> Inventory { get => _inventory; }
-    public List<Weapon> Armaments { get => _armaments; }
+    public List<Item> inventory = new List<Item>();
+    public List<Weapon> armaments = new List<Weapon>();
 
     public override string ToString()
     {
@@ -30,23 +27,54 @@ public class SaveGame
 
     public void AddArmament(Weapon newWep)
     {
-        _armaments.Add(newWep);
+        armaments.Add(newWep);
     }
 
     public void AddItem(Item newItem)
     {
-        foreach (Item item in _inventory)
+        foreach (Item item in inventory)
         {
             if (item.Name == newItem.Name)
             {
-                Debug.Log("incremented quantity of " + item.Name);
+                Debug.Log("incrementing: " + item.Name);
                 item.Quantity++;
-            }
-            else
+                return;
+            }            
+        }
+        
+        //If no match was found...
+        inventory.Add(newItem);
+        Debug.Log("added new stack of " + newItem.Name);
+    }
+
+    public void UseItem(Item usedItem)
+    {
+        Item itemToDelete = null;
+        foreach (Item item in inventory)
+        {
+            if (usedItem.Name == item.Name)
             {
-                Debug.Log("added new stack of " + item.Name);
-                _inventory.Add(newItem);
+                //decrement
+                if (item.Quantity > 1)
+                {
+                    Debug.Log("decrementing: " + item.Name);
+                    item.Quantity--;
+                    return;
+                }
+                else
+                {
+                    itemToDelete = item;
+                }
             }
+        }
+        if (itemToDelete != null)
+        {
+            Debug.Log("removing stack of: " + itemToDelete.Name);
+            inventory.Remove(itemToDelete);
+        }
+        else
+        {
+            Debug.LogError("tried to remove non-existing item: " + itemToDelete.Name);
         }
     }
 }

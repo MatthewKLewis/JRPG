@@ -96,10 +96,9 @@ public class sInteriorUI : MonoBehaviour
     {
         conversationPanel.localScale = Vector3.zero;
     }
-    private void HandleItemReceived(Weapon wep)
+    private void HandleItemReceived(Item item)
     {
-        print(wep.Name);
-        ShowNotifier(wep.Name + " added to inventory.");
+        ShowNotifier(item.Name + " added to inventory.");
     }    
     private void ToggleInteractIndicator(bool show, string action)
     {
