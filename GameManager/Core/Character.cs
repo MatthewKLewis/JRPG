@@ -89,13 +89,13 @@ public class Character
     {
         switch (condition.status)
         {
-            case ConditionStatusEnum.ISDEAD:
+            case CharacterStatusEnum.ISDEAD:
                 return isDead;
-            case ConditionStatusEnum.ISLOWERTHAN50:
+            case CharacterStatusEnum.ISLOWERTHAN50:
                 return (Health / MaxHealth) < 0.50f;
-            case ConditionStatusEnum.ISLOWERTHAN25:
+            case CharacterStatusEnum.ISLOWERTHAN25:
                 return (Health / MaxHealth) < 0.25f;
-            case ConditionStatusEnum.ISPOISONED:
+            case CharacterStatusEnum.ISPOISONED:
                 return Debuffs.Contains(DebuffEnum.POISONED);
             default:
                 return false; //true?

@@ -10,10 +10,6 @@ public enum MagicCameraMode
     INTRO = 3,
 }
 
-// Good Static Camera Pos/Rot
-// x: -9, y: 05, z: -9
-// x: 25, y: 45, z: 00
-
 public class sMagicCamera : MonoBehaviour
 {
     //private MagicCameraMode cameraMode;
@@ -51,18 +47,19 @@ public class sMagicCamera : MonoBehaviour
     private void IdleCameraUpdate()
     {
         //make sure not to pivot too far around
-        if (Mathf.Abs(transform.rotation.eulerAngles.y) > 30)
-        {
-            ROTATE_SPEED = -ROTATE_SPEED;
-        }
-        transform.Rotate(Vector3.up * ROTATE_SPEED * Time.deltaTime);
+        //if (Mathf.Abs(transform.rotation.eulerAngles.y) > 30)
+        //{
+        //    ROTATE_SPEED = -ROTATE_SPEED;
+        //}
+        //transform.Rotate(Vector3.up * ROTATE_SPEED * Time.deltaTime);
     }
 
     public void FocusCameraOn(Character activeCharacter)
     {
         if (activeCharacter.PlayerControlled)
         {
-            SetCameraToFocus(activeCharacter.animator.transform.position, activeCharacter.animator.transform.rotation);
+            //SetCameraToFocus(activeCharacter.animator.transform.position, activeCharacter.animator.transform.rotation);
+            SetCameraToCenter();
         }
         else
         {
@@ -74,7 +71,7 @@ public class sMagicCamera : MonoBehaviour
     {
         transform.position = Vector3.zero;
         cameraTransform.localPosition = new Vector3(-9, 5, -9);
-        cameraTransform.localRotation = Quaternion.Euler(20, 45, 0);
+        cameraTransform.localRotation = Quaternion.Euler(20, 55, 0);
     }
 
     private void SetCameraToFocus(Vector3 pos, Quaternion rot)

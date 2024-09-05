@@ -27,7 +27,7 @@ public class sBattleAnimator : MonoBehaviour
     {
         if (!AnimationFinished)
         {
-            if (currentBattleChoice.Type == BattleChoiceEnum.ATTACK)
+            if (currentBattleChoice.Type == BattleChoiceTypeEnum.ATTACK)
             {
                 timeInAttack += Time.deltaTime;
                 meshRootTransform.LookAt(lookTarget);
@@ -37,11 +37,11 @@ public class sBattleAnimator : MonoBehaviour
                     AnimationCurves.ATTACK_CURVE.Evaluate(timeInAttack) * (attackTarget.z - transform.position.z))
                 );
             }
-            else if (currentBattleChoice.Type == BattleChoiceEnum.SPELL)
+            else if (currentBattleChoice.Type == BattleChoiceTypeEnum.SPELL)
             {
                 //SPELL POSITIONING AND LOOK
             }
-            else if (currentBattleChoice.Type == BattleChoiceEnum.ITEM)
+            else if (currentBattleChoice.Type == BattleChoiceTypeEnum.ITEM)
             {
                 //ITEM POSITIONING AND LOOK
             }
@@ -109,10 +109,10 @@ public class sBattleAnimator : MonoBehaviour
         switch (choices.Type)
         {
             // Eventually this will get moved to a separate function called at a keyframe in the animation
-            case BattleChoiceEnum.ATTACK:
+            case BattleChoiceTypeEnum.ATTACK:
                 // nothing?
                 break;
-            case BattleChoiceEnum.SPELL:
+            case BattleChoiceTypeEnum.SPELL:
                 if (GameManager.instance.gameObjectDictionary.TryGetValue(choices.Spell.PrefabDictionaryName, out GameObject gSO))
                 {
                     Instantiate(gSO, choices.TargetPosition, Quaternion.identity, null);
@@ -122,7 +122,7 @@ public class sBattleAnimator : MonoBehaviour
                     Debug.LogWarning("COULD NOT GET SPELL FX GO!");
                 }
                 break;
-            case BattleChoiceEnum.ITEM:
+            case BattleChoiceTypeEnum.ITEM:
                 if (GameManager.instance.gameObjectDictionary.TryGetValue(choices.Item.PrefabDictionaryName, out GameObject gIO))
                 {
                     Instantiate(gIO, choices.TargetPosition, Quaternion.identity, null);

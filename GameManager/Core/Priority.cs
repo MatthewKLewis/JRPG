@@ -15,7 +15,7 @@ public enum RelevanceEnum
     TOENEMIES,
 }
 
-public enum ConditionStatusEnum
+public enum CharacterStatusEnum
 {
     ISDEAD,
     ISLOWERTHAN50,
@@ -26,7 +26,7 @@ public enum ConditionStatusEnum
 public class Condition
 {
     public RelevanceEnum relevance; //as opposed to enemy
-    public ConditionStatusEnum status;
+    public CharacterStatusEnum status;
 }
 
 public class Priority

@@ -14,7 +14,7 @@ public enum ElementTypeEnum
     ICE = 2,
 }
 
-public enum BattleChoiceEnum
+public enum BattleChoiceTypeEnum
 {
     ATTACK = 0,
     SPELL = 1,
@@ -47,8 +47,8 @@ public class BattleChoice
     public Spell Spell = null;
     public Item Item = null;
 
-    public BattleChoiceEnum Type { 
-        get => Spell == null && Item == null ? BattleChoiceEnum.ATTACK : Item == null ? BattleChoiceEnum.SPELL : BattleChoiceEnum.ITEM;
+    public BattleChoiceTypeEnum Type { 
+        get => Spell == null && Item == null ? BattleChoiceTypeEnum.ATTACK : Item == null ? BattleChoiceTypeEnum.SPELL : BattleChoiceTypeEnum.ITEM;
     }
     public Vector3 TargetPosition
     {
@@ -59,11 +59,11 @@ public class BattleChoice
     {
         switch (Type) 
         {
-            case BattleChoiceEnum.ATTACK:
+            case BattleChoiceTypeEnum.ATTACK:
                 return "Chose basic attack on " + Target.Name;
-            case BattleChoiceEnum.SPELL:
+            case BattleChoiceTypeEnum.SPELL:
                 return "Chose " + Spell.Name + " on " + Target.Name;
-            case BattleChoiceEnum.ITEM:
+            case BattleChoiceTypeEnum.ITEM:
                 return "Chose " + Item.Name + " on " + Target.Name;                
             default:
                 return "CHOICE ERROR!";
@@ -97,13 +97,13 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
 
     private Vector3[][] spawnPositions = new Vector3[][] {
         new Vector3[]{ new Vector3(0, 0, -5)},
-        new Vector3[]{ new Vector3(2, 0, -5), new Vector3(-2, 0, -5)},
+        new Vector3[]{ new Vector3(-2, 0, -5), new Vector3(2, 0, -5)},
         new Vector3[]{ new Vector3(-4, 0, -5), new Vector3(0, 0, -5), new Vector3(4, 0, -5)},
     }; //1, 2, or 3 spawns
 
     private GameManager gM;
     private sBattleSounds battleSounds;
-    private int turnsTaken = -1;
+    private int inititiveOrder = 11; //1 more than possible by roll
 
     public List<Character> combatants = new List<Character>();
     public List<Character> combatantsNonInitOrder = new List<Character>(); //?
@@ -143,10 +143,9 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     //GETTERS and SETTERS
     public Character ActiveCharacter
     {
-        get 
+        get //Change this to reflect a descending wrapping inititive order.
         {
-            if (turnsTaken < 0) return null;
-            return combatants[turnsTaken % combatants.Count];
+            return combatants.Find(character => character.Initiative == inititiveOrder);
         }
     }
     public List<Character> AICharacters
@@ -161,8 +160,6 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     {
         get { return combatants.FindAll(c => !c.PlayerControlled && c.isDead); }
     }
-
-    //sort these
     public List<Character> PlayerCharacters
     {
         get { return combatants.FindAll(c => c.PlayerControlled); }
@@ -192,9 +189,6 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
         LoadTeam();
         LoadEnemies();        
 
-        //Order combatants by initiative
-        combatants.Sort((x,y) => x.Initiative.CompareTo(y.Initiative));
-
         //list
         foreach (Character combatant in combatants)
         {
@@ -214,6 +208,8 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
             //Prep Teammate
             Character teammate = gM.activeSave.teamMembers[i];
             string teammateBattlePrefabName = gM.activeSave.teamMembers[i].PrefabDictionaryName;
+
+            teammate.RollInitiative();
             combatants.Add(teammate);
 
             //make ui rows for team members
@@ -234,30 +230,18 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
                 teammate.animator = tempTeamGo.GetComponent<sBattleAnimator>();
             }
 
-            teammate.RollInitiative();
         }
     }
     private void LoadEnemies()
     {
-        List<Character> enemies = new List<Character>() { gM.GetRandomEnemy() };
-
-        //Prep enemy
-        foreach (Character enemy  in enemies)
-        {
-            //print(enemy.Name);
-            //print(enemy.Health);
-            enemy.RollInitiative();            
-        }
-
-        //sort by init
-        enemies.Sort((x, y) => x.Initiative.CompareTo(y.Initiative));
-
-        //add to combatants & load models for them
+        List<Character> enemies = new List<Character>() { gM.GetRandomEnemy(), gM.GetRandomEnemy() };
         for (int i = 0; i < enemies.Count; i++)
         {
             Character enemy = enemies[i];
-            combatants.Add(enemy);
             string enemyBattlePrefabName = enemies[i].PrefabDictionaryName;
+
+            enemy.RollInitiative();
+            combatants.Add(enemy);
 
             if (gM.gameObjectDictionary.TryGetValue(enemyBattlePrefabName, out GameObject gO))
             {
@@ -312,13 +296,13 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
 
         switch (choices.Type)
         {
-            case BattleChoiceEnum.ATTACK:
+            case BattleChoiceTypeEnum.ATTACK:
                 AddCurrentText(ActiveCharacter.Name + " attack on " + choices.Target.Name);
                 break;
-            case BattleChoiceEnum.SPELL:
+            case BattleChoiceTypeEnum.SPELL:
                 AddCurrentText(ActiveCharacter.Name + " casts spell " + choices.Spell.Name + " on " + choices.Target.Name);
                 break;
-            case BattleChoiceEnum.ITEM:
+            case BattleChoiceTypeEnum.ITEM:
                 gM.activeSave.UseItem(choices.Item);
                 AddCurrentText(ActiveCharacter.Name + " uses item: " + choices.Item.Name + " on " + choices.Target.Name);
                 break;
@@ -359,7 +343,19 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     //COMBAT FLOW
     private void AdvanceTurn()
     {
-        turnsTaken++;
+        inititiveOrder--;
+        while (ActiveCharacter == null)
+        {
+            inititiveOrder--;
+            if (inititiveOrder <= 0)
+            {
+                inititiveOrder = 10;
+            }
+        }
+        print("init order: " + inititiveOrder.ToString());
+
+        //Advance
+        print(ActiveCharacter.Name + "'s turn.");
 
         if (CheckForWin())
         {
@@ -375,18 +371,15 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
             return;
         }
 
-        //Advance
-        //print(ActiveCharacter.Name + "'s turn.");
-
-        //Focus Camera
-        magicCamera.FocusCameraOn(ActiveCharacter);
-
         if (ActiveCharacter.isDead)
         {
             print("Would have been " + ActiveCharacter.Name + "'s turn but he's dead.");
             SkipTurn();
             return;
         }
+
+        //Focus Camera
+        magicCamera.FocusCameraOn(ActiveCharacter);
 
         //Mark buttons, play ready sound.
         if (ActiveCharacter.PlayerControlled)
@@ -489,15 +482,15 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
         Damage damage = null;
         switch (choices.Type)
         {
-            case BattleChoiceEnum.ATTACK:
+            case BattleChoiceTypeEnum.ATTACK:
                 damage = ActiveCharacter.GetAttackDamage(choices);
                 ActiveCharacter.animator.PlayAttackAnimation(choices);
                 break;
-            case BattleChoiceEnum.SPELL:
+            case BattleChoiceTypeEnum.SPELL:
                 damage = ActiveCharacter.GetSpellDamage(choices);
                 ActiveCharacter.animator.PlaySpellAnimation(choices);
                 break;
-            case BattleChoiceEnum.ITEM:
+            case BattleChoiceTypeEnum.ITEM:
                 damage = ActiveCharacter.GetItemDamage(choices);
                 ActiveCharacter.animator.PlayItemAnimation(choices);
                 break;

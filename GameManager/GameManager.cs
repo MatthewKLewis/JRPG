@@ -57,21 +57,16 @@ public class GameManager : MonoBehaviour
             gameObjectDictionary.Add(m.name, m);
         }
 
+        activeSave = saveGames[0];
+
         //load player if scene is not battle or title
         if (SceneManager.GetActiveScene().name == "OverworldScene")
         {
-            activeSave = saveGames[0];
             LoadOverworldScene(new Vector3(0, 3, 0));
         }
         if (SceneManager.GetActiveScene().name == "InteriorScene")
         {
-            activeSave = saveGames[0];
             LoadInteriorScene("HouseSubScene");
-        }
-        if (SceneManager.GetActiveScene().name == "BattleScene")
-        {
-            activeSave = saveGames[0];
-            LoadBattleScene();
         }
 
         loadingScreen.SetActive(false);
