@@ -13,9 +13,13 @@ public class Character
     public sBattleAnimator animator;
 
     public Weapon HeldWeapon;
-    public Resistances Resistances = new Resistances();
-
     public List<Spell> SpellsKnown = new List<Spell>();
+
+    public Resistances Resistances = new Resistances();
+    public List<DebuffEnum> Debuffs = new List<DebuffEnum>();
+    public List<BuffEnum> Buffs = new List<BuffEnum>();
+
+    public List<Priority> Priorities = new List<Priority>();
 
     public int Initiative;
     public bool isDead;
@@ -79,5 +83,22 @@ public class Character
         Health -= damage.Amount;
         isDead = this.Health <= 0;
         return isDead;
+    }
+
+    public bool ConditionObtains(Condition condition)
+    {
+        switch (condition.status)
+        {
+            case ConditionStatusEnum.ISDEAD:
+                return isDead;
+            case ConditionStatusEnum.ISLOWERTHAN50:
+                return (Health / MaxHealth) < 0.50f;
+            case ConditionStatusEnum.ISLOWERTHAN25:
+                return (Health / MaxHealth) < 0.25f;
+            case ConditionStatusEnum.ISPOISONED:
+                return Debuffs.Contains(DebuffEnum.POISONED);
+            default:
+                return false; //true?
+        }
     }
 }

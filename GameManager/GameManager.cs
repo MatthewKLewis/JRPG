@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -23,6 +24,7 @@ public class GameManager : MonoBehaviour
     public List<SaveGame> saveGames = new List<SaveGame>() { null, null, null, null, null, null, };
 
     public Dictionary<string, GameObject> gameObjectDictionary = new Dictionary<string, GameObject>();
+    public Dictionary<string, Character> enemyDictionary = new Dictionary<string, Character>();
 
     [SerializeField] private GameObject playerInteriorPrefab;
     [SerializeField] private GameObject playerOverworldPrefab;
@@ -46,6 +48,7 @@ public class GameManager : MonoBehaviour
     void Start()
     {
         GetSaveFilesFromDataPath();
+        GetEnemyCharacterInfoFromDataPath();
 
         var gameObjects = Resources.LoadAll<GameObject>("GameObjects");
         foreach (GameObject m in gameObjects)
@@ -55,15 +58,18 @@ public class GameManager : MonoBehaviour
         }
 
         //load player if scene is not battle or title
-        if (SceneManager.GetActiveScene().name == "OverworldScene") {
+        if (SceneManager.GetActiveScene().name == "OverworldScene")
+        {
             activeSave = saveGames[0];
-            LoadOverworldScene(new Vector3(0,3,0));
+            LoadOverworldScene(new Vector3(0, 3, 0));
         }
-        if (SceneManager.GetActiveScene().name == "InteriorScene") {
+        if (SceneManager.GetActiveScene().name == "InteriorScene")
+        {
             activeSave = saveGames[0];
             LoadInteriorScene("HouseSubScene");
         }
-        if (SceneManager.GetActiveScene().name == "BattleScene") {
+        if (SceneManager.GetActiveScene().name == "BattleScene")
+        {
             activeSave = saveGames[0];
             LoadBattleScene();
         }
@@ -74,7 +80,7 @@ public class GameManager : MonoBehaviour
     //INTERACTING WITH EXTERNAL FILES
     private void GetSaveFilesFromDataPath()
     {
-        DirectoryInfo dir = new DirectoryInfo(Application.persistentDataPath);
+        DirectoryInfo dir = new DirectoryInfo(Application.persistentDataPath + "/saves");
         FileInfo[] saveSlots = dir.GetFiles("*.json");
 
         //If there aren't six, make six.
@@ -87,8 +93,23 @@ public class GameManager : MonoBehaviour
         {
             string sJ = File.ReadAllText(saveSlots[i].ToString());
             SaveGame convertedSave = JsonConvert.DeserializeObject<SaveGame>(sJ);
-            //print(convertedSave.ToString());
             saveGames[i] = convertedSave;
+        }
+    }
+    private void GetEnemyCharacterInfoFromDataPath()
+    {
+        DirectoryInfo dir = new DirectoryInfo(Application.persistentDataPath + "/enemies");
+        FileInfo[] enemyJSONs = dir.GetFiles("enemies.json");
+
+        for (int i = 0; i < enemyJSONs.Length; i++)
+        {
+            string eJ = File.ReadAllText(enemyJSONs[i].ToString());
+            Character[] convertedCharacters = JsonConvert.DeserializeObject<Character[]>(eJ);
+            foreach (Character conChar in convertedCharacters)
+            {
+                //print(conChar.Name);
+                enemyDictionary.Add(conChar.Name, conChar);
+            }
         }
     }
     public string SaveGame(int slot)
@@ -97,11 +118,11 @@ public class GameManager : MonoBehaviour
         activeSave.x = 0;
         activeSave.y = 0;
         activeSave.z = 0;
-        
+
         string saveJson = JsonConvert.SerializeObject(activeSave);
 
         //TODO, allow user to choose slot
-        File.WriteAllText(Application.persistentDataPath + "/save"+ slot.ToString() +".json", saveJson);
+        File.WriteAllText(Application.persistentDataPath + "/saves/save" + slot.ToString() + ".json", saveJson);
         return activeSave.dateCreated;
     }
 
@@ -244,7 +265,7 @@ public class GameManager : MonoBehaviour
         subOperation.allowSceneActivation = true;
         yield return new WaitForSeconds(0.5f);
 
-        loadingScreen.SetActive(false);
+        loadingScreen.SetActive(false); 
     }
     private IEnumerator LoadRewardsSceneRoutine(BattleResults battleResults)
     {
@@ -265,5 +286,21 @@ public class GameManager : MonoBehaviour
 
         //battle is done by the battle manager
         loadingScreen.SetActive(false);
+    }
+
+    //RANDOM RESOURCES LOADED FROM FILES
+    public Character GetRandomEnemy()
+    {
+        //print("Number of enemies in dictionary: " + enemyDictionary.Count.ToString());
+        int randInt = UnityEngine.Random.Range(0, enemyDictionary.Count);
+        return enemyDictionary.ElementAt(randInt).Value;
+    }
+    public Item GetRandomItem()
+    {
+        return new Item("Molotov", 5, true);
+    }
+    public Weapon GetRandomWeapon()
+    {
+        return new Weapon("9mm Handgun", 5);
     }
 }

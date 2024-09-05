@@ -10,6 +10,10 @@ public enum MagicCameraMode
     INTRO = 3,
 }
 
+// Good Static Camera Pos/Rot
+// x: -9, y: 05, z: -9
+// x: 25, y: 45, z: 00
+
 public class sMagicCamera : MonoBehaviour
 {
     //private MagicCameraMode cameraMode;
@@ -21,8 +25,8 @@ public class sMagicCamera : MonoBehaviour
 
     void Start()
     {
+        SetCameraToCenter();
         //cameraMode = MagicCameraMode.IDLE;
-        transform.localScale = Vector3.one * 3f;
     }
 
     void Update()
@@ -46,6 +50,11 @@ public class sMagicCamera : MonoBehaviour
 
     private void IdleCameraUpdate()
     {
+        //make sure not to pivot too far around
+        if (Mathf.Abs(transform.rotation.eulerAngles.y) > 30)
+        {
+            ROTATE_SPEED = -ROTATE_SPEED;
+        }
         transform.Rotate(Vector3.up * ROTATE_SPEED * Time.deltaTime);
     }
 
@@ -53,16 +62,27 @@ public class sMagicCamera : MonoBehaviour
     {
         if (activeCharacter.PlayerControlled)
         {
-            ROTATE_SPEED = -ROTATE_SPEED;
-            transform.position = activeCharacter.animator.transform.position;
-            transform.rotation = activeCharacter.animator.transform.rotation;
-            transform.localScale = Vector3.one;
+            SetCameraToFocus(activeCharacter.animator.transform.position, activeCharacter.animator.transform.rotation);
         }
         else
         {
-            transform.position = Vector3.zero;
-            transform.localScale = Vector3.one * 3f;
+            SetCameraToCenter();
         }
+    }
+
+    private void SetCameraToCenter()
+    {
+        transform.position = Vector3.zero;
+        cameraTransform.localPosition = new Vector3(-9, 5, -9);
+        cameraTransform.localRotation = Quaternion.Euler(20, 45, 0);
+    }
+
+    private void SetCameraToFocus(Vector3 pos, Quaternion rot)
+    {
+        transform.position = pos;
+        transform.rotation = rot;
+        cameraTransform.localPosition = new Vector3(0, 6, -6);
+        cameraTransform.localRotation = Quaternion.Euler(20, 0, 0);
     }
 
     private void OnDrawGizmos()

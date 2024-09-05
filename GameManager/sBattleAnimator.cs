@@ -61,7 +61,7 @@ public class sBattleAnimator : MonoBehaviour
         lookTarget = choices.Target.animator.gameObject.transform.position;
         attackTarget = choices.Target.animator.EnemyVantage.position;
 
-        print("play attack animation");
+        //print("play attack animation");
         StartCoroutine(PlayAnimationCoroutine(choices));
     }
 

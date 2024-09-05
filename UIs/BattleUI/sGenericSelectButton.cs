@@ -75,11 +75,11 @@ public class sGenericSelectButton: MonoBehaviour, IPointerEnterHandler
                 choices.Spell = spellThisButtonRepresents;
                 if (choices.Spell.UsedOnEnemies)
                 {
-                    Instantiate(bM.genericSelectPanel, parentAdditionalPanelParent).GetComponent<sGenericSelectPanel>().FillCharInfo(bM.LivingEnemyCharacters, choices);                
+                    Instantiate(bM.genericSelectPanel, parentAdditionalPanelParent).GetComponent<sGenericSelectPanel>().FillCharInfo(bM.LivingAICharacters, choices);                
                 }
                 else
                 {
-                    Instantiate(bM.genericSelectPanel, parentAdditionalPanelParent).GetComponent<sGenericSelectPanel>().FillCharInfo(bM.LivingFriendlyCharacters, choices);                
+                    Instantiate(bM.genericSelectPanel, parentAdditionalPanelParent).GetComponent<sGenericSelectPanel>().FillCharInfo(bM.LivingPlayerCharacters, choices);                
                 }
                 break;
 
@@ -87,11 +87,11 @@ public class sGenericSelectButton: MonoBehaviour, IPointerEnterHandler
                 choices.Item = itemThisButtonRepresents;
                 if (choices.Item.UsedOnEnemies)
                 { 
-                    Instantiate(bM.genericSelectPanel, parentAdditionalPanelParent).GetComponent<sGenericSelectPanel>().FillCharInfo(bM.LivingEnemyCharacters, choices);
+                    Instantiate(bM.genericSelectPanel, parentAdditionalPanelParent).GetComponent<sGenericSelectPanel>().FillCharInfo(bM.LivingAICharacters, choices);
                 }
                 else
                 {
-                    Instantiate(bM.genericSelectPanel, parentAdditionalPanelParent).GetComponent<sGenericSelectPanel>().FillCharInfo(bM.LivingFriendlyCharacters, choices);
+                    Instantiate(bM.genericSelectPanel, parentAdditionalPanelParent).GetComponent<sGenericSelectPanel>().FillCharInfo(bM.LivingPlayerCharacters, choices);
                 }
                 break;
 
