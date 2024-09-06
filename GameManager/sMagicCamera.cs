@@ -47,11 +47,11 @@ public class sMagicCamera : MonoBehaviour
     private void IdleCameraUpdate()
     {
         //make sure not to pivot too far around
-        //if (Mathf.Abs(transform.rotation.eulerAngles.y) > 30)
-        //{
-        //    ROTATE_SPEED = -ROTATE_SPEED;
-        //}
-        //transform.Rotate(Vector3.up * ROTATE_SPEED * Time.deltaTime);
+        if (Mathf.Abs(transform.rotation.eulerAngles.y) > 20)
+        {
+            ROTATE_SPEED = -ROTATE_SPEED;
+        }
+        transform.Rotate(Vector3.up * ROTATE_SPEED * Time.deltaTime);
     }
 
     public void FocusCameraOn(Character activeCharacter)

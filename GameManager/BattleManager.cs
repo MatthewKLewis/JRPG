@@ -103,7 +103,9 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
 
     private GameManager gM;
     private sBattleSounds battleSounds;
-    private int inititiveOrder = 11; //1 more than possible by roll
+
+    private int inititiveOrder = 10; //1 more than possible by roll
+    private List<int> initiativeTickets = new List<int>() { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
     public List<Character> combatants = new List<Character>();
     public List<Character> combatantsNonInitOrder = new List<Character>(); //?
@@ -189,6 +191,8 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
         LoadTeam();
         LoadEnemies();        
 
+        //while two combatants have the same inititive, one must go higher.
+
         //list
         foreach (Character combatant in combatants)
         {
@@ -209,7 +213,11 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
             Character teammate = gM.activeSave.teamMembers[i];
             string teammateBattlePrefabName = gM.activeSave.teamMembers[i].PrefabDictionaryName;
 
-            teammate.RollInitiative();
+            int initTicketIndex = Random.Range(0, initiativeTickets.Count);
+            int initTicket = initiativeTickets[initTicketIndex];
+            initiativeTickets.RemoveAt(initTicketIndex);            
+            teammate.SetInitiative(initTicket);
+
             combatants.Add(teammate);
 
             //make ui rows for team members
@@ -240,7 +248,11 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
             Character enemy = enemies[i];
             string enemyBattlePrefabName = enemies[i].PrefabDictionaryName;
 
-            enemy.RollInitiative();
+            int initTicketIndex = Random.Range(0, initiativeTickets.Count);
+            int initTicket = initiativeTickets[initTicketIndex];
+            initiativeTickets.RemoveAt(initTicketIndex);
+            enemy.SetInitiative(initTicket);
+
             combatants.Add(enemy);
 
             if (gM.gameObjectDictionary.TryGetValue(enemyBattlePrefabName, out GameObject gO))
@@ -300,6 +312,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
                 AddCurrentText(ActiveCharacter.Name + " attack on " + choices.Target.Name);
                 break;
             case BattleChoiceTypeEnum.SPELL:
+                ActiveCharacter.UseMP(choices.Spell.MPCost);
                 AddCurrentText(ActiveCharacter.Name + " casts spell " + choices.Spell.Name + " on " + choices.Target.Name);
                 break;
             case BattleChoiceTypeEnum.ITEM:
@@ -347,15 +360,15 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
         while (ActiveCharacter == null)
         {
             inititiveOrder--;
-            if (inititiveOrder <= 0)
+            if (inititiveOrder < 0)
             {
                 inititiveOrder = 10;
             }
         }
-        print("init order: " + inititiveOrder.ToString());
+        //print("init order: " + inititiveOrder.ToString());
 
         //Advance
-        print(ActiveCharacter.Name + "'s turn.");
+        //print(ActiveCharacter.Name + "'s turn.");
 
         if (CheckForWin())
         {
@@ -435,32 +448,41 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
             switch (priority.condition.relevance)
             {
                 case RelevanceEnum.TOSELF:
-                    if (ActiveCharacter.ConditionObtains(priority.condition))
+                    if (ActiveCharacter.ConditionObtains(priority.condition) && ChoiceIsPossible(priority.choice))
                     {
                         finalChoice = priority.choice;
                         finalChoice.Target = ActiveCharacter;
                         print("AI chose itself due to " + priority.condition.status.ToString());
+                        return finalChoice;
                     }
                     break;
                 case RelevanceEnum.TOFRIENDLIES:
-                    foreach (Character enemy in AICharacters)
+                    if (ChoiceIsPossible(priority.choice))
                     {
-                        if (enemy.ConditionObtains(priority.condition))
+                        foreach (Character enemy in AICharacters)
                         {
-                            finalChoice = priority.choice;
-                            finalChoice.Target = enemy;
-                            print("AI chose friendlies due to " + priority.condition.status.ToString());
+                            if (enemy.ConditionObtains(priority.condition))
+                            {
+                                finalChoice = priority.choice;
+                                finalChoice.Target = enemy;
+                                print("AI chose friendlies due to " + priority.condition.status.ToString());
+                                return finalChoice;
+                            }
                         }
                     }
                     break;
                 case RelevanceEnum.TOENEMIES:
-                    foreach (Character teammate in PlayerCharacters)
+                    if (ChoiceIsPossible(priority.choice))
                     {
-                        if (teammate.ConditionObtains(priority.condition))
+                        foreach (Character teammate in PlayerCharacters)
                         {
-                            finalChoice = priority.choice;
-                            finalChoice.Target = teammate;
-                            print("AI chose to attack" + priority.condition.status.ToString());
+                            if (teammate.ConditionObtains(priority.condition))
+                            {
+                                finalChoice = priority.choice;
+                                finalChoice.Target = teammate;
+                                print("AI chose to attack" + priority.condition.status.ToString());
+                                return finalChoice;
+                            }
                         }
                     }
                     break;
@@ -472,7 +494,33 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
         print(finalChoice.ToString());
         return finalChoice;
     }
-
+    private bool ChoiceIsPossible(BattleChoice choice)
+    {
+        if (ActiveCharacter.PlayerControlled)
+        {
+            Debug.LogError("Trying to determine AI choice validity for a player character!");
+            return false;
+        }
+        if (choice.Spell == null && choice.Item == null)
+        {
+            return true;
+        }
+        else if (choice.Spell != null)
+        {
+            if (choice.Spell.MPCost > ActiveCharacter.MP)
+            {
+                return false;
+            }
+            Debug.Log("Choice was a spell with MP cost: " + choice.Spell.MPCost);
+            return true;
+        }
+        else if (choice.Item != null)
+        {
+            Debug.LogError("AI character trying to use an item!");
+            return false;
+        }
+        return true;
+    }
 
     //COMBAT PAUSE
     private IEnumerator PauseCalcDamageThenAdvanceTurn(BattleChoice choices)
@@ -505,7 +553,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
 
         if (choices.Target.TakeDamageReturnTrueIfDead(damage))
         {
-            print(choices.Target.Name + " died.");
+            //print(choices.Target.Name + " died.");
             choices.Target.animator.PlayDeathAnimation();
         }
         yield return new WaitForSeconds(1.5f);

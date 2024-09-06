@@ -23,8 +23,15 @@ public class GameManager : MonoBehaviour
 
     public List<SaveGame> saveGames = new List<SaveGame>() { null, null, null, null, null, null, };
 
+    //pulls from Resources
     public Dictionary<string, GameObject> gameObjectDictionary = new Dictionary<string, GameObject>();
+
+    //pull from persistent data path
     public Dictionary<string, Character> enemyDictionary = new Dictionary<string, Character>();
+    public Dictionary<string, Weapon> weaponDictionary = new Dictionary<string, Weapon>();
+    public Dictionary<string, Spell> spellDictionary = new Dictionary<string, Spell>();
+    public Dictionary<string, Item> itemDictionary = new Dictionary<string, Item>();
+
 
     [SerializeField] private GameObject playerInteriorPrefab;
     [SerializeField] private GameObject playerOverworldPrefab;
@@ -288,7 +295,9 @@ public class GameManager : MonoBehaviour
     {
         //print("Number of enemies in dictionary: " + enemyDictionary.Count.ToString());
         int randInt = UnityEngine.Random.Range(0, enemyDictionary.Count);
-        return enemyDictionary.ElementAt(randInt).Value;
+
+        //return a CLONE!
+        return enemyDictionary.ElementAt(randInt).Value.ShallowCopy();
     }
     public Item GetRandomItem()
     {
@@ -296,6 +305,10 @@ public class GameManager : MonoBehaviour
     }
     public Weapon GetRandomWeapon()
     {
-        return new Weapon("9mm Handgun", 5);
+        return new Weapon() 
+        { 
+            Name = "9mm Handgun",
+            Damage = 5,
+        };
     }
 }

@@ -5,21 +5,6 @@ using UnityEngine;
 
 public static class NewGameInformation
 {
-    public static string JOURNAL_START = "So I've finally arrived, but the records don't show from where...";
-
-    public static List<Character> STARTING_CHARACTERS = new List<Character>()
-    {
-        new Character("Uef", 10, new Weapon("Axe", 3), true){ ID = 1 },
-        new Character("Bi", 10, new Weapon("Spear", 3), true){ ID = 2 },
-        new Character("Skripach", 10, new Weapon("Spear", 3), true){ ID = 3 },
-    };
-
-    public static List<Item> STARTING_ITEMS = new List<Item>()
-    {
-        new Item("Potion", -5, false),
-        new Item("Molotov", 5, true)
-    };
-
     public static SaveGame STARTING_SAVE_FILE = new SaveGame()
     {
         dateCreated = DateTime.Now.ToString(),
@@ -32,9 +17,34 @@ public static class NewGameInformation
         z = 0,
 
         //LISTS
-        teamMembers = STARTING_CHARACTERS,
-        journalContents = JOURNAL_START,
-        inventory = STARTING_ITEMS,
+        teamMembers = new List<Character>() 
+        {
+            new Character()
+            {
+                Name = "Hero",
+                ID = 1,
+                PrefabDictionaryName = "Hero",
+                animator = null,
+                BaseDamage = 3,
+                HeldWeapon = new Weapon()
+                {
+                    Name = "Club",
+                    Damage = 2,
+                },
+                Resistances = new Resistances(),
+                Debuffs = new List<DebuffEnum>(){ },
+                Buffs = new List<BuffEnum>(){ },
+                Priorities = null,
+                Initiative = 1,
+                isDead = false,
+                Health = 10,
+                MaxHealth = 10,
+                Level = 1,
+                PlayerControlled = true
+            },
+        },
+        journalContents = "I've finally arrived, but the records don't show from where.",
+        inventory = new List<Item>() { },
         gold = 20,
     };
 }

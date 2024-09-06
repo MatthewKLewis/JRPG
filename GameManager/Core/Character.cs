@@ -22,43 +22,41 @@ public class Character
     public List<Priority> Priorities = new List<Priority>();
 
     public int Initiative;
+    public int BaseDamage;
     public bool isDead;
     public int Health;
     public int MaxHealth;
+    public int MP;
+    public int MaxMP;
     public int Level;
     public bool PlayerControlled;
 
-    public Character(string name, int health, Weapon heldWeapon, bool playerControlled)
+    public void SetInitiative(int init)
     {
-        this.Name = name;
-        this.PrefabDictionaryName = name;
-
-        this.Health = health;
-        this.MaxHealth = health;
-        this.isDead = health <= 0;
-
-        this.HeldWeapon = heldWeapon;
-        this.PlayerControlled = playerControlled;
-
-        this.Initiative = -1;
-        this.Level = 1;
-
-        this.SpellsKnown = new List<Spell>() { 
-            new Spell("Fireball", true, 3, ElementTypeEnum.FIRE), 
-            new Spell("Heal", false, -5, ElementTypeEnum.ICE) 
-        };
+        Initiative = init;
     }
 
-    public void RollInitiative()
+    public void UseMP(int usedMP)
     {
-        Initiative = Random.Range(0, 11);
+        this.MP -= usedMP;
+        //Debug.Log("Consumed " + usedMP);
+
+        if (this.MP < 0)
+        {
+            Debug.LogError("Used more MP than had!");
+        }
     }
 
     public Damage GetAttackDamage(BattleChoice choices)
     {
-        int damage = 0;
-        damage += this.HeldWeapon.Damage;
-        damage += this.Level;
+        int damage = this.BaseDamage;
+
+        //Weapon Damage
+        if (HeldWeapon != null) { damage += this.HeldWeapon.Damage; }
+
+        //Random Damage
+        //
+
         return new Damage() { Amount = damage, ElementType = ElementTypeEnum.PHYSICAL};
     }
 
@@ -92,13 +90,20 @@ public class Character
             case CharacterStatusEnum.ISDEAD:
                 return isDead;
             case CharacterStatusEnum.ISLOWERTHAN50:
+                //Debug.Log((float)Health / (float)MaxHealth);
                 return (Health / MaxHealth) < 0.50f;
             case CharacterStatusEnum.ISLOWERTHAN25:
-                return (Health / MaxHealth) < 0.25f;
+                //Debug.Log((float)Health / (float)MaxHealth);
+                return ((float)Health / (float)MaxHealth) < 0.25f;
             case CharacterStatusEnum.ISPOISONED:
                 return Debuffs.Contains(DebuffEnum.POISONED);
             default:
                 return false; //true?
         }
+    }
+
+    public Character ShallowCopy()
+    {
+        return (Character)MemberwiseClone();
     }
 }

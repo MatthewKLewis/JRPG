@@ -107,5 +107,9 @@ public class sGenericSelectButton: MonoBehaviour, IPointerEnterHandler
         {
             bM.Spotlight(charThisButtonRepresents.animator.gameObject.transform.position);
         }
+        else
+        {
+            print("Couldnt find associated enemy!");
+        }
     }
 }

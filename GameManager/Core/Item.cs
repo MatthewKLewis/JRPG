@@ -13,7 +13,6 @@ public class Item
     public bool UsedOnAll;
     public ElementTypeEnum ElementType;
 
-
     public Item(string name, int damage, bool usedOnEnemies)
     {
         this.Name = name;
