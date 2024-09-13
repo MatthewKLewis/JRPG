@@ -23,9 +23,8 @@ public enum BattleChoiceTypeEnum
 
 public enum BattleResultEnum
 {
-    WIN = 0,
-    LOSS = 1,
-    RUN = 2,
+    WIN,
+    RUN,
 }
 
 public enum DebuffEnum
@@ -76,6 +75,7 @@ public class BattleResults
     public BattleResultEnum result;
     public List<Item> booty;
     public int gold;
+    public int experience;
 }
 
 public class Damage
@@ -120,27 +120,29 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     [SerializeField] private Transform spotlight;
 
     [Space(4)]
+    [Header("BattleUI & Buttons")]
     [SerializeField] private Button attackButton;
     [SerializeField] private Button magicButton;
     [SerializeField] private Button itemButton;
     [SerializeField] private Button runButton;
 
-
+    [Space(4)]
+    [Header("Menu Parents and Prefabs")]
     [SerializeField] private Transform originalSelectPanelParent;
     public GameObject genericSelectPanel;
 
-    [Header("Victory Button")]
+    [Space(4)]
+    [Header("Team Elements and Prefabs")]
+    [SerializeField] private Transform teamPanel;
+    [SerializeField] private GameObject teamMemberRowPrefab;
+
+    [Header("Victory & Defeat")]
     [SerializeField] private GameObject victoryPanel;
+    private BattleResults battleResults = new BattleResults();
 
     [Space(4)]
     [Header("Error Placeholder Prefab")]
     [SerializeField] private GameObject errorCharacterPrefab;
-
-    [Space(4)]
-    [Header("UI Elements and Prefabs")]
-    [SerializeField] private Transform teamPanel;
-    [SerializeField] private GameObject teamMemberRowPrefab;
-
 
     //GETTERS and SETTERS
     public Character ActiveCharacter
@@ -152,27 +154,27 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     }
     public List<Character> AICharacters
     {
-        get { return combatants.FindAll(c => !c.PlayerControlled); }
+        get { return combatants.FindAll(c => c is AICharacter); }
     }
     public List<Character> LivingAICharacters
     {
-        get { return combatants.FindAll(c => !c.PlayerControlled && !c.isDead); }
+        get { return combatants.FindAll(c => c is AICharacter && !c.isDead); }
     }
     public List<Character> DeadAICharacters
     {
-        get { return combatants.FindAll(c => !c.PlayerControlled && c.isDead); }
+        get { return combatants.FindAll(c => c is AICharacter && c.isDead); }
     }
     public List<Character> PlayerCharacters
     {
-        get { return combatants.FindAll(c => c.PlayerControlled); }
+        get { return combatants.FindAll(c => c is PlayerCharacter); }
     }
     public List<Character> LivingPlayerCharacters
     {
-        get { return combatants.FindAll(c => c.PlayerControlled && !c.isDead); }
+        get { return combatants.FindAll(c => c is PlayerCharacter && !c.isDead); }
     }
     public List<Character> DeadPlayerCharacters
     {
-        get { return combatants.FindAll(c => c.PlayerControlled && c.isDead); }
+        get { return combatants.FindAll(c => c is PlayerCharacter && c.isDead); }
     }
 
 
@@ -187,7 +189,6 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     {
         gM = GameManager.instance;
         battleSounds = GetComponent<sBattleSounds>();
-
         LoadTeam();
         LoadEnemies();        
 
@@ -242,7 +243,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     }
     private void LoadEnemies()
     {
-        List<Character> enemies = new List<Character>() { gM.GetRandomEnemy(), gM.GetRandomEnemy() };
+        List<Character> enemies = new List<Character>() { gM.GetRandomEnemy() };
         for (int i = 0; i < enemies.Count; i++)
         {
             Character enemy = enemies[i];
@@ -344,7 +345,12 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     public void VictoryButton()
     {
         DestroyAnimatorsOnTeammates();
-        gM.LoadRewardsScene(new BattleResults() { result = BattleResultEnum.WIN, gold = 10, booty = new List<Item>() { } });
+        gM.LoadRewardsScene(new BattleResults() { 
+            booty = new List<Item>() {gM.GetRandomItem()},
+            gold = gM.GetRandomGoldAmount(),
+            result = BattleResultEnum.WIN,
+            experience = 100,
+        });
     }
     public void GameOver()
     {
@@ -395,7 +401,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
         magicCamera.FocusCameraOn(ActiveCharacter);
 
         //Mark buttons, play ready sound.
-        if (ActiveCharacter.PlayerControlled)
+        if (ActiveCharacter is PlayerCharacter)
         {
             battleSounds.PlayBell();
             ToggleCombatButtons(true);
@@ -423,10 +429,10 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     {
         return LivingPlayerCharacters.Count <= 0;
     }
-    private Character GetRandomPlayerCharacter()
+    private Character GetRandomCharacterFromList(List<Character> list)
     {
-        int randInt = Random.Range(0, LivingPlayerCharacters.Count);
-        return LivingPlayerCharacters[randInt];
+        int randInt = Random.Range(0, list.Count);
+        return list[randInt];
     }
 
     //AI
@@ -436,67 +442,83 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
         BattleChoice finalChoice = new BattleChoice() {
             Item = null,
             Spell = null,
-            Target = GetRandomPlayerCharacter(),
+            Target = GetRandomCharacterFromList(LivingPlayerCharacters),
         };
 
-        if (ActiveCharacter.PlayerControlled)
+        if (ActiveCharacter is PlayerCharacter)
         {
             Debug.LogError("Trying to determine an AI choice for a player controlled character!");
         }
-        foreach (Priority priority in ActiveCharacter.Priorities)
+
+        //Random enemy flubs go here? Ignore good stratagem 20% of the time and just attack?
+        //never on bosses ofc
+
+        //Cast Character as AICharacter?
+        if (ActiveCharacter is AICharacter)
         {
-            switch (priority.condition.relevance)
+            AICharacter tempAIChar = ActiveCharacter as AICharacter;
+            foreach (Priority priority in tempAIChar.Priorities)
             {
-                case RelevanceEnum.TOSELF:
-                    if (ActiveCharacter.ConditionObtains(priority.condition) && ChoiceIsPossible(priority.choice))
-                    {
-                        finalChoice = priority.choice;
-                        finalChoice.Target = ActiveCharacter;
-                        print("AI chose itself due to " + priority.condition.status.ToString());
-                        return finalChoice;
-                    }
-                    break;
-                case RelevanceEnum.TOFRIENDLIES:
-                    if (ChoiceIsPossible(priority.choice))
-                    {
-                        foreach (Character enemy in AICharacters)
+                switch (priority.condition.relevance)
+                {
+                    case RelevanceEnum.TOSELF:
+                        if (ActiveCharacter.ConditionObtains(priority.condition) && ChoiceIsPossible(priority.choice))
                         {
-                            if (enemy.ConditionObtains(priority.condition))
+                            finalChoice = priority.choice;
+                            finalChoice.Target = ActiveCharacter;
+                            print("AI chose itself due to " + priority.condition.status.ToString());
+                            return finalChoice;
+                        }
+                        break;
+                    case RelevanceEnum.TOFRIENDLIES:
+                        if (ChoiceIsPossible(priority.choice))
+                        {
+                            List<Character> aiTeamMatesWhoMayBeChosen = new List<Character>();
+                            foreach (Character aiChar in AICharacters)
+                            {
+                                if (aiChar.ConditionObtains(priority.condition))
+                                {
+                                    aiTeamMatesWhoMayBeChosen.Add(aiChar);
+                                }
+                            }
+                            if (aiTeamMatesWhoMayBeChosen.Count > 0)
                             {
                                 finalChoice = priority.choice;
-                                finalChoice.Target = enemy;
-                                print("AI chose friendlies due to " + priority.condition.status.ToString());
-                                return finalChoice;
+                                finalChoice.Target = GetRandomCharacterFromList(aiTeamMatesWhoMayBeChosen);
                             }
                         }
-                    }
-                    break;
-                case RelevanceEnum.TOENEMIES:
-                    if (ChoiceIsPossible(priority.choice))
-                    {
-                        foreach (Character teammate in PlayerCharacters)
+                        break;
+                    case RelevanceEnum.TOENEMIES:
+                        if (ChoiceIsPossible(priority.choice))
                         {
-                            if (teammate.ConditionObtains(priority.condition))
+                            List<Character> playerCharsWhoMayBeChosen = new List<Character>();
+                            foreach (Character playerChar in PlayerCharacters)
+                            {
+                                if (playerChar.ConditionObtains(priority.condition))
+                                {
+                                    playerCharsWhoMayBeChosen.Add(playerChar);
+                                }
+                            }
+                            if (playerCharsWhoMayBeChosen.Count > 0)
                             {
                                 finalChoice = priority.choice;
-                                finalChoice.Target = teammate;
-                                print("AI chose to attack" + priority.condition.status.ToString());
-                                return finalChoice;
+                                finalChoice.Target = GetRandomCharacterFromList(playerCharsWhoMayBeChosen);
                             }
                         }
-                    }
-                    break;
-                default:
-                    Debug.LogError("No conditions apply to AI priorities. Basic Attack, chosen randomly holds as default");
-                    break;
+                        break;
+                    default:
+                        Debug.LogError("No conditions apply to AI priorities. Basic Attack, chosen randomly holds as default");
+                        break;
+                }
             }
         }
+
         print(finalChoice.ToString());
         return finalChoice;
     }
     private bool ChoiceIsPossible(BattleChoice choice)
     {
-        if (ActiveCharacter.PlayerControlled)
+        if (ActiveCharacter is PlayerCharacter)
         {
             Debug.LogError("Trying to determine AI choice validity for a player character!");
             return false;
@@ -528,22 +550,52 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
         DestroyAllChildrenOf(originalSelectPanelParent);
 
         Damage damage = null;
-        switch (choices.Type)
+
+        if (ActiveCharacter is PlayerCharacter)
         {
-            case BattleChoiceTypeEnum.ATTACK:
-                damage = ActiveCharacter.GetAttackDamage(choices);
-                ActiveCharacter.animator.PlayAttackAnimation(choices);
-                break;
-            case BattleChoiceTypeEnum.SPELL:
-                damage = ActiveCharacter.GetSpellDamage(choices);
-                ActiveCharacter.animator.PlaySpellAnimation(choices);
-                break;
-            case BattleChoiceTypeEnum.ITEM:
-                damage = ActiveCharacter.GetItemDamage(choices);
-                ActiveCharacter.animator.PlayItemAnimation(choices);
-                break;
-            default:
-                break;
+            PlayerCharacter pC = ActiveCharacter as PlayerCharacter;
+            switch (choices.Type)
+            {
+                case BattleChoiceTypeEnum.ATTACK:
+                    damage = pC.GetAttackDamage(choices);
+                    ActiveCharacter.animator.PlayAttackAnimation(choices);
+                    break;
+                case BattleChoiceTypeEnum.SPELL:
+                    damage = pC.GetSpellDamage(choices);
+                    ActiveCharacter.animator.PlaySpellAnimation(choices);
+                    break;
+                case BattleChoiceTypeEnum.ITEM:
+                    damage = pC.GetItemDamage(choices);
+                    ActiveCharacter.animator.PlayItemAnimation(choices);
+                    break;
+                default:
+                    break;
+            }
+        }
+        else if (ActiveCharacter is AICharacter)
+        {
+            AICharacter aiC = ActiveCharacter as AICharacter;
+            switch (choices.Type)
+            {
+                case BattleChoiceTypeEnum.ATTACK:
+                    damage = aiC.GetAttackDamage(choices);
+                    ActiveCharacter.animator.PlayAttackAnimation(choices);
+                    break;
+                case BattleChoiceTypeEnum.SPELL:
+                    damage = aiC.GetSpellDamage(choices);
+                    ActiveCharacter.animator.PlaySpellAnimation(choices);
+                    break;
+                case BattleChoiceTypeEnum.ITEM:
+                    damage = aiC.GetItemDamage(choices);
+                    ActiveCharacter.animator.PlayItemAnimation(choices);
+                    break;
+                default:
+                    break;
+            }
+        }
+        else
+        {
+            Debug.LogError("CHARACTER NOT AI OR PLAYER?!");
         }
 
         //Wait until animation is complete
@@ -563,7 +615,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     }
     private IEnumerator FlyoverThenAdvanceTurn()
     {
-        yield return new WaitForSeconds(3.5f);
+        yield return new WaitForSeconds(10f);
         AdvanceTurn();
     }
 

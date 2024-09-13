@@ -17,30 +17,43 @@ public static class NewGameInformation
         z = 0,
 
         //LISTS
-        teamMembers = new List<Character>() 
+        teamMembers = new List<PlayerCharacter>()
         {
-            new Character()
+            new PlayerCharacter()
             {
                 Name = "Hero",
                 ID = 1,
                 PrefabDictionaryName = "Hero",
                 animator = null,
-                BaseDamage = 3,
                 HeldWeapon = new Weapon()
                 {
                     Name = "Club",
                     Damage = 2,
                 },
+                SpellsKnown = new List<Spell>()
+                {
+                    new Spell()
+                    {
+                        Name="Fireball",
+                        PrefabDictionaryName="Fireball",
+                        MPCost=5,
+                        Damage=5,
+                        UsedOnEnemies=true,
+                        UsedOnAll=false,
+                        ElementType=ElementTypeEnum.FIRE,
+                    }
+                },
                 Resistances = new Resistances(),
                 Debuffs = new List<DebuffEnum>(){ },
                 Buffs = new List<BuffEnum>(){ },
-                Priorities = null,
                 Initiative = 1,
                 isDead = false,
-                Health = 10,
-                MaxHealth = 10,
+                MP = 10,
+                MaxMP = 10,
+                Health = 24,
+                MaxHealth = 24,
                 Level = 1,
-                PlayerControlled = true
+                Experience = 0,
             },
         },
         journalContents = "I've finally arrived, but the records don't show from where.",

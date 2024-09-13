@@ -5,6 +5,9 @@ public class Item
 {
     public string Name;
     public string PrefabDictionaryName;
+
+    public string Description;
+
     public int Quantity = 1;
 
     public int Damage;

@@ -5,15 +5,17 @@ using UnityEngine;
 public class SaveGame
 {
     public string dateCreated;
+
     public string subSceneName;
     public bool onOverworldMap;
+
     public float x;
     public float y;
     public float z;
 
     public string journalContents;
 
-    public List<Character> teamMembers;
+    public List<PlayerCharacter> teamMembers;
 
     public int gold;
 

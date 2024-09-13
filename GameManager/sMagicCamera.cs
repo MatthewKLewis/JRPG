@@ -56,15 +56,7 @@ public class sMagicCamera : MonoBehaviour
 
     public void FocusCameraOn(Character activeCharacter)
     {
-        if (activeCharacter.PlayerControlled)
-        {
-            //SetCameraToFocus(activeCharacter.animator.transform.position, activeCharacter.animator.transform.rotation);
-            SetCameraToCenter();
-        }
-        else
-        {
-            SetCameraToCenter();
-        }
+        SetCameraToCenter();
     }
 
     private void SetCameraToCenter()

@@ -6,15 +6,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
-public enum GameMode
-{
-    TITLE_SCREEN = 0,
-    OVERWORLD = 1,
-    SCENE = 2,
-    BATTLE = 3,
-    REWARDS = 4,
-}
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
@@ -27,16 +19,20 @@ public class GameManager : MonoBehaviour
     public Dictionary<string, GameObject> gameObjectDictionary = new Dictionary<string, GameObject>();
 
     //pull from persistent data path
-    public Dictionary<string, Character> enemyDictionary = new Dictionary<string, Character>();
+    public Dictionary<string, AICharacter> enemyDictionary = new Dictionary<string, AICharacter>();
     public Dictionary<string, Weapon> weaponDictionary = new Dictionary<string, Weapon>();
     public Dictionary<string, Spell> spellDictionary = new Dictionary<string, Spell>();
     public Dictionary<string, Item> itemDictionary = new Dictionary<string, Item>();
 
-
     [SerializeField] private GameObject playerInteriorPrefab;
     [SerializeField] private GameObject playerOverworldPrefab;
     [SerializeField] private GameObject loadingScreen;
-    public string lastInteriorSubSceneName = "";
+    [SerializeField] private Image loadingScreenImage;
+
+    [Space(20)]
+    [Header("Game Music")]
+    private AudioSource aS;
+    [SerializeField] private AudioClip track1;
 
     private void Awake()
     {
@@ -54,6 +50,7 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        aS = GetComponent<AudioSource>();
         GetSaveFilesFromDataPath();
         GetEnemyCharacterInfoFromDataPath();
 
@@ -69,11 +66,11 @@ public class GameManager : MonoBehaviour
         //load player if scene is not battle or title
         if (SceneManager.GetActiveScene().name == "OverworldScene")
         {
-            LoadOverworldScene(new Vector3(0, 3, 0));
+            LoadOverworldScene(new Vector3(169, 2, -56));
         }
         if (SceneManager.GetActiveScene().name == "InteriorScene")
         {
-            LoadInteriorScene("HouseSubScene");
+            LoadInteriorScene("HouseSubScene", Vector3.zero);
         }
 
         loadingScreen.SetActive(false);
@@ -106,8 +103,8 @@ public class GameManager : MonoBehaviour
         for (int i = 0; i < enemyJSONs.Length; i++)
         {
             string eJ = File.ReadAllText(enemyJSONs[i].ToString());
-            Character[] convertedCharacters = JsonConvert.DeserializeObject<Character[]>(eJ);
-            foreach (Character conChar in convertedCharacters)
+            Character[] convertedCharacters = JsonConvert.DeserializeObject<AICharacter[]>(eJ);
+            foreach (AICharacter conChar in convertedCharacters)
             {
                 //print(conChar.Name);
                 enemyDictionary.Add(conChar.Name, conChar);
@@ -134,7 +131,7 @@ public class GameManager : MonoBehaviour
     {
         print("Start Game!");
         activeSave = NewGameInformation.STARTING_SAVE_FILE;
-        LoadInteriorScene(activeSave.subSceneName);
+        LoadInteriorScene(activeSave.subSceneName, new Vector3(activeSave.x, activeSave.y, activeSave.z));
     }
     public void LoadSavedGame(int slot)
     {
@@ -144,7 +141,7 @@ public class GameManager : MonoBehaviour
             Debug.LogError("Load Button Error");
         }
         activeSave = saveGames[slot];
-        LoadInteriorScene(activeSave.subSceneName);
+        LoadInteriorScene(activeSave.subSceneName, new Vector3(activeSave.x, activeSave.y, activeSave.z));
     }
     public void QuitToDesktop()
     {
@@ -158,22 +155,33 @@ public class GameManager : MonoBehaviour
     {
         StartCoroutine(LoadOverworldSceneRoutine(overworldPosition));
     }
-    public void LoadInteriorScene(string subSceneName)
+    public void LoadInteriorScene(string subSceneName, Vector3 newScenePosition)
     {
-        lastInteriorSubSceneName = subSceneName;
-        StartCoroutine(LoadInteriorSceneRoutine(subSceneName));
+        activeSave.subSceneName = subSceneName;
+        StartCoroutine(LoadInteriorSceneRoutine(subSceneName, newScenePosition));
     }
-    public void LoadLastInteriorScene()
+    public void LoadScenePriorToBattle()
     {
-        if (lastInteriorSubSceneName == "")
+        if (activeSave.onOverworldMap)
         {
-            Debug.LogWarning("Last Interior Subscene empty string!");
-            return;
+            StartCoroutine(LoadOverworldSceneRoutine(new Vector3(activeSave.x, activeSave.y, activeSave.z)));
         }
-        StartCoroutine(LoadInteriorSceneRoutine(lastInteriorSubSceneName));
+        else if (activeSave.subSceneName != "")
+        {
+            StartCoroutine(LoadInteriorSceneRoutine(activeSave.subSceneName, new Vector3(activeSave.x, activeSave.y, activeSave.z)));
+        }
+        else
+        {
+            Debug.LogError("Player was not on Overworld, but also no subSceneName!");
+        }
     }
-    public void LoadBattleScene()
+    public void LoadBattleScene(Vector3 playerIntOrExtLocation)
     {
+        //Save the position of the player before battle (INTERIOR OR EXTERIOR [could cause bugs?])
+        activeSave.x = playerIntOrExtLocation.x;
+        activeSave.y = playerIntOrExtLocation.y;
+        activeSave.z = playerIntOrExtLocation.z;
+
         StartCoroutine(LoadBattleSceneRoutine());
     }
     public void LoadRewardsScene(BattleResults battleResults)
@@ -191,7 +199,7 @@ public class GameManager : MonoBehaviour
 
 
     //ROUTINES
-    private IEnumerator LoadOverworldSceneRoutine(Vector3 overworldPosition)
+    private IEnumerator LoadOverworldSceneRoutine(Vector3 position)
     {
         loadingScreen.SetActive(true);
 
@@ -210,12 +218,12 @@ public class GameManager : MonoBehaviour
         yield return null;
 
         //overworld stuff
-        Instantiate(playerOverworldPrefab, overworldPosition, Quaternion.identity, null);
+        Instantiate(playerOverworldPrefab, position, Quaternion.identity, null);
         activeSave.onOverworldMap = true;
         activeSave.subSceneName = "";
         loadingScreen.SetActive(false);
     }
-    private IEnumerator LoadInteriorSceneRoutine(string subSceneName)
+    private IEnumerator LoadInteriorSceneRoutine(string subSceneName, Vector3 position)
     {
         loadingScreen.SetActive(true);
 
@@ -238,7 +246,7 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(0.5f);
 
         //interior stuff
-        Instantiate(playerInteriorPrefab, null);
+        Instantiate(playerInteriorPrefab, position, Quaternion.identity, null);
 
         //mark the save correctly
         activeSave.onOverworldMap = false;
@@ -248,12 +256,10 @@ public class GameManager : MonoBehaviour
     }
     private IEnumerator LoadBattleSceneRoutine()
     {
-        loadingScreen.SetActive(true);
-
-        yield return new WaitForSeconds(0.5f);
+        StartCoroutine(FadeInOutLoadingScreen(true));        
 
         AsyncOperation operation = SceneManager.LoadSceneAsync("BattleScene");
-        AsyncOperation subOperation = SceneManager.LoadSceneAsync("DesertBBS", LoadSceneMode.Additive); //BBS tagged
+        AsyncOperation subOperation = SceneManager.LoadSceneAsync("CavePitBSS", LoadSceneMode.Additive); //CavePitBSS //DesertBSS
         operation.allowSceneActivation = false;
         subOperation.allowSceneActivation = false;
 
@@ -263,16 +269,17 @@ public class GameManager : MonoBehaviour
             //print(progressValue);
             yield return null;
         }
+        yield return new WaitForSeconds(1f);
         operation.allowSceneActivation = true;
         subOperation.allowSceneActivation = true;
-        yield return new WaitForSeconds(0.5f);
 
-        loadingScreen.SetActive(false); 
+        StartCoroutine(FadeInOutLoadingScreen(false));
+
+        //Battle Music
+        PlayMusicTrack(1);
     }
     private IEnumerator LoadRewardsSceneRoutine(BattleResults battleResults)
     {
-        print("Loading Rewards!");
-        print(battleResults.ToString());
         loadingScreen.SetActive(true);
         AsyncOperation operation = SceneManager.LoadSceneAsync("RewardsScene");
         operation.allowSceneActivation = false;
@@ -288,9 +295,43 @@ public class GameManager : MonoBehaviour
 
         //battle is done by the battle manager
         loadingScreen.SetActive(false);
+
+        //test test test MKL
+        StopMusic();
+        GameObject.Find("RewardsUI").GetComponent<sRewardsUI>().DisplayBattleResults(battleResults);
+    }
+    private IEnumerator FadeInOutLoadingScreen(bool fadeIn)
+    {
+        if (fadeIn)
+        {
+            loadingScreenImage.color = Color.clear;
+            loadingScreen.SetActive(true);
+            yield return null;
+            float time = 0f;
+            while (time < 1f)
+            {
+                time += Time.deltaTime;
+                loadingScreenImage.color = new Color(1, 1, 1, Math.Clamp(time, 0f, 1f)); //gaining opacity
+                yield return null;
+            }
+        }
+        else
+        {
+            loadingScreenImage.color = Color.white;
+            yield return null;
+            float time = 1f;
+            while (time > 0f)
+            {
+                time -= Time.deltaTime;
+                loadingScreenImage.color = new Color(1, 1, 1, Math.Clamp(time, 0f, 1f)); //losing opacity
+                yield return null;
+            }
+            loadingScreen.SetActive(false);
+        }
     }
 
-    //RANDOM RESOURCES LOADED FROM FILES
+
+    //RANDOM RESOURCES
     public Character GetRandomEnemy()
     {
         //print("Number of enemies in dictionary: " + enemyDictionary.Count.ToString());
@@ -298,6 +339,10 @@ public class GameManager : MonoBehaviour
 
         //return a CLONE!
         return enemyDictionary.ElementAt(randInt).Value.ShallowCopy();
+    }
+    public int GetRandomGoldAmount()
+    {
+        return UnityEngine.Random.Range(10, 100);
     }
     public Item GetRandomItem()
     {
@@ -310,5 +355,18 @@ public class GameManager : MonoBehaviour
             Name = "9mm Handgun",
             Damage = 5,
         };
+    }
+    
+
+    //MUSIC
+    public void PlayMusicTrack(int trackNumber)
+    {
+        print("playing track: " + trackNumber.ToString());
+        aS.volume = 0.25f;
+        aS.PlayOneShot(track1);
+    }
+    public void StopMusic()
+    {
+        aS.Stop();
     }
 }

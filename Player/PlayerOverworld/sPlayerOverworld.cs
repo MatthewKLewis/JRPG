@@ -8,13 +8,15 @@ public class sPlayerOverworld : MonoBehaviour
 {
     private GameManager gM;
     private CharacterController cC;
-    private float playerSpeed = 5f;
-    private float rotateSpeed = 40f;
+    private float playerSpeed = 4f;
+    private float rotateSpeed = 80f;
 
     //Potential Assets to Act Upon
     private sDoor doorAffordance;
 
-    //private float distanceTraveled = 0f;
+    private Vector3 lastTurnPosition;
+    private float distanceTraveled = 0f;
+    private float combatDistance = 10f;
 
     [SerializeField] private LayerMask worldLayerMask;
     private RaycastHit worldHit;
@@ -31,13 +33,21 @@ public class sPlayerOverworld : MonoBehaviour
         {
             if (doorAffordance != null)
             {
-                gM.LoadInteriorScene(doorAffordance.interiorSubSceneName);
+                gM.LoadInteriorScene(doorAffordance.interiorSubSceneName, doorAffordance.newScenePosition);
             }
+        }
+
+        if (distanceTraveled > combatDistance)
+        {
+            gM.LoadBattleScene(transform.position);
+            Destroy(this.gameObject);
         }
     }
 
     private void FixedUpdate()
     {
+        lastTurnPosition = transform.position;
+
         Vector3 inputVector = new Vector3(
             0, 0, //Input.GetKey(KeyCode.D) ? 1 : Input.GetKey(KeyCode.A) ? -1 : 0, 0,
             Input.GetKey(KeyCode.W) ? 1 : Input.GetKey(KeyCode.S) ? -1 : 0
@@ -56,6 +66,17 @@ public class sPlayerOverworld : MonoBehaviour
         //Move and Rotate
         transform.Rotate(inputRotate);
         cC.Move(transform.TransformDirection(inputVector));
+
+        //Movement change here?
+        distanceTraveled += (transform.position - lastTurnPosition).magnitude;
+        //print(distanceTraveled.ToString("00.00"));
+
+        //World Wrapping
+        if (transform.position.x > 250) { print("teleport E-W"); transform.position = new Vector3(-249.9f, transform.position.y, transform.position.z); }
+        if (transform.position.x < -250) { print("teleport W-E"); transform.position = new Vector3(249.9f, transform.position.y, transform.position.z); }
+
+        if (transform.position.z > 250) { print("teleport N-S"); transform.position = new Vector3(transform.position.x, transform.position.y, -249.9f); }
+        if (transform.position.z < -250) { print("teleport S-N"); transform.position = new Vector3(transform.position.x, transform.position.y, 249.9f); }
     }
 
     private void OnTriggerEnter(Collider other)

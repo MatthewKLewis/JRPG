@@ -43,7 +43,7 @@ public class sPlayerInterior : MonoBehaviour
                 gM.LoadOverworldScene(gateAffordance.overworldPosition);
             }
             else if (doorAffordance != null) {
-                gM.LoadInteriorScene(doorAffordance.interiorSubSceneName);
+                gM.LoadInteriorScene(doorAffordance.interiorSubSceneName, doorAffordance.newScenePosition);
             }
         }
     }
@@ -81,7 +81,7 @@ public class sPlayerInterior : MonoBehaviour
                 npcAffordance = other.GetComponent<sNPC>();
                 break;
             case ("Monster"): //SPECIAL CASE!!!
-                gM.LoadBattleScene();
+                gM.LoadBattleScene(transform.position);
                 break;
             default:
                 print("trigger error");

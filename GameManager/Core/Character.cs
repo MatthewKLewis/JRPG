@@ -12,24 +12,17 @@ public class Character
     //MUST be deleted after battle scenes before saving.
     public sBattleAnimator animator;
 
-    public Weapon HeldWeapon;
     public List<Spell> SpellsKnown = new List<Spell>();
-
     public Resistances Resistances = new Resistances();
     public List<DebuffEnum> Debuffs = new List<DebuffEnum>();
     public List<BuffEnum> Buffs = new List<BuffEnum>();
 
-    public List<Priority> Priorities = new List<Priority>();
-
     public int Initiative;
-    public int BaseDamage;
     public bool isDead;
     public int Health;
     public int MaxHealth;
     public int MP;
     public int MaxMP;
-    public int Level;
-    public bool PlayerControlled;
 
     public void SetInitiative(int init)
     {
@@ -49,31 +42,20 @@ public class Character
 
     public Damage GetAttackDamage(BattleChoice choices)
     {
-        int damage = this.BaseDamage;
-
-        //Weapon Damage
-        if (HeldWeapon != null) { damage += this.HeldWeapon.Damage; }
-
-        //Random Damage
-        //
-
-        return new Damage() { Amount = damage, ElementType = ElementTypeEnum.PHYSICAL};
+        Debug.LogWarning("USING ANCESTOR CLASS DAMAGE CALC!");
+        return new Damage() { Amount = 1, ElementType = ElementTypeEnum.PHYSICAL};
     }
 
     public Damage GetSpellDamage(BattleChoice choices)
     {
-        int damage = 0;
-        damage += choices.Spell.Damage;
-        damage += this.Level;
-        return new Damage() { Amount = damage, ElementType = ElementTypeEnum.FIRE };
+        Debug.LogWarning("USING ANCESTOR CLASS DAMAGE CALC!");
+        return new Damage() { Amount = choices.Spell.Damage, ElementType = ElementTypeEnum.FIRE };
     }
 
     public Damage GetItemDamage(BattleChoice choices)
     {
-        int damage = 0;
-        damage += choices.Item.Damage;
-        damage += this.Level;
-        return new Damage() { Amount = damage, ElementType = ElementTypeEnum.FIRE };
+        Debug.LogWarning("USING ANCESTOR CLASS DAMAGE CALC!");
+        return new Damage() { Amount = choices.Item.Damage, ElementType = ElementTypeEnum.FIRE };
     }
 
     public bool TakeDamageReturnTrueIfDead(Damage damage)
@@ -87,6 +69,8 @@ public class Character
     {
         switch (condition.status)
         {
+            case CharacterStatusEnum.ANY:
+                return true;
             case CharacterStatusEnum.ISDEAD:
                 return isDead;
             case CharacterStatusEnum.ISLOWERTHAN50:
@@ -102,8 +86,39 @@ public class Character
         }
     }
 
-    public Character ShallowCopy()
+}
+
+public class PlayerCharacter : Character
+{
+    public int Level;
+    public int Experience;
+    public Weapon HeldWeapon;
+
+    public bool EarnXPReturnTrueIfLevelUp(int xp)
     {
-        return (Character)MemberwiseClone();
+        Experience += xp;
+        return false;
+    }
+
+    public new Damage GetAttackDamage(BattleChoice choices)
+    {
+        return new Damage() { Amount = HeldWeapon.Damage + Level, ElementType = ElementTypeEnum.PHYSICAL };
     }
 }
+
+public class AICharacter : Character
+{
+    public int BaseDamage;
+    public List<Priority> Priorities = new List<Priority>();
+
+    public AICharacter ShallowCopy()
+    {
+        return (AICharacter)MemberwiseClone();
+    }
+
+    public new Damage GetAttackDamage(BattleChoice choices)
+    {
+        return new Damage() { Amount = BaseDamage, ElementType = ElementTypeEnum.PHYSICAL };
+    }
+}
+

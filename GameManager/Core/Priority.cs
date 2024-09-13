@@ -17,6 +17,7 @@ public enum RelevanceEnum
 
 public enum CharacterStatusEnum
 {
+    ANY,
     ISDEAD,
     ISLOWERTHAN50,
     ISLOWERTHAN25,
