@@ -9,7 +9,7 @@ public class sPartyMenu : MonoBehaviour
     void Start()
     {
         //Instantiate Rows
-        foreach (Character teamMember in GameManager.instance.activeSave.teamMembers)
+        foreach (PlayerCharacter teamMember in GameManager.instance.activeSave.teamMembers)
         {
             Instantiate(partyMemberRowPrefab, this.transform).GetComponent<sPartyMemberRow>().FillInfo(teamMember);
         }

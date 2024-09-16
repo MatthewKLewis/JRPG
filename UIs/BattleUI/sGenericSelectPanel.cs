@@ -19,7 +19,7 @@ public class sGenericSelectPanel : MonoBehaviour
 
     void Start()
     {
-        //
+        StartCoroutine(UIJuice.SquashAndStretchRoutine(this.transform));
     }
 
     // ALWAYS LAST STEP!
@@ -55,4 +55,6 @@ public class sGenericSelectPanel : MonoBehaviour
             gO.GetComponent<sGenericSelectButton>().FillButtonItemInfo(item, additionalPanelParent, prevChoices);
         }
     }
+
+
 }

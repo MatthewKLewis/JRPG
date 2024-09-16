@@ -113,7 +113,6 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     [Space(4)]
     [Header("Text Fields")]
     [SerializeField] private TextMeshProUGUI currentText;
-    [SerializeField] private TextMeshProUGUI activeCharacterText;
 
     [Space(4)]
     [Header("Camera")]
@@ -121,6 +120,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
 
     [Space(4)]
     [Header("BattleUI & Buttons")]
+    [SerializeField] private Transform actionPanel;
     [SerializeField] private Button attackButton;
     [SerializeField] private Button magicButton;
     [SerializeField] private Button itemButton;
@@ -277,6 +277,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     //BUTTONS AND TURN STATE SELECTORS
     private void ToggleCombatButtons(bool enabled)
     {
+        actionPanel.localScale =  enabled ? Vector3.one : Vector3.zero;
         attackButton.interactable = enabled;
         magicButton.interactable = enabled;
         itemButton.interactable = enabled;
@@ -349,7 +350,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
             booty = new List<Item>() {gM.GetRandomItem()},
             gold = gM.GetRandomGoldAmount(),
             result = BattleResultEnum.WIN,
-            experience = 100,
+            experience = 6000,
         });
     }
     public void GameOver()
@@ -405,7 +406,6 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
         {
             battleSounds.PlayBell();
             ToggleCombatButtons(true);
-            activeCharacterText.text = ActiveCharacter.Name;
 
             //await player input to advance again
             return;
@@ -413,9 +413,8 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
         else
         {
             ToggleCombatButtons(false);
-            activeCharacterText.text = "";
 
-            //make computer choice - attack random
+            //make computer choice
             FinalizeBattleChoice( DetermineAIChoice() );
             return;
         }        
@@ -434,6 +433,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
         int randInt = Random.Range(0, list.Count);
         return list[randInt];
     }
+
 
     //AI
     private BattleChoice DetermineAIChoice()
@@ -544,6 +544,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
         return true;
     }
 
+
     //COMBAT PAUSE
     private IEnumerator PauseCalcDamageThenAdvanceTurn(BattleChoice choices)
     {
@@ -615,7 +616,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     }
     private IEnumerator FlyoverThenAdvanceTurn()
     {
-        yield return new WaitForSeconds(10f);
+        yield return new WaitForSeconds(4f);
         AdvanceTurn();
     }
 
@@ -648,6 +649,7 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     {
         spotlight.position = newPos + Vector3.up * 3;
     }
+
 
     //DEBUG
     private void OnDrawGizmos()

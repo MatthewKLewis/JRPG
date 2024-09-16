@@ -269,9 +269,11 @@ public class GameManager : MonoBehaviour
             //print(progressValue);
             yield return null;
         }
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
+        print(loadingScreenImage.color);
         operation.allowSceneActivation = true;
         subOperation.allowSceneActivation = true;
+        yield return null;
 
         StartCoroutine(FadeInOutLoadingScreen(false));
 
@@ -311,7 +313,8 @@ public class GameManager : MonoBehaviour
             while (time < 1f)
             {
                 time += Time.deltaTime;
-                loadingScreenImage.color = new Color(1, 1, 1, Math.Clamp(time, 0f, 1f)); //gaining opacity
+                float clampedOpacity = Mathf.Clamp(time, 0f, 1f);
+                loadingScreenImage.color = new Color(1, 1, 1, clampedOpacity); //losing opacity
                 yield return null;
             }
         }
@@ -323,7 +326,8 @@ public class GameManager : MonoBehaviour
             while (time > 0f)
             {
                 time -= Time.deltaTime;
-                loadingScreenImage.color = new Color(1, 1, 1, Math.Clamp(time, 0f, 1f)); //losing opacity
+                float clampedOpacity = Mathf.Clamp(time, 0f, 1f);
+                loadingScreenImage.color = new Color(1, 1, 1, clampedOpacity); //losing opacity
                 yield return null;
             }
             loadingScreen.SetActive(false);

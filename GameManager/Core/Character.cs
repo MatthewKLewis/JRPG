@@ -97,6 +97,13 @@ public class PlayerCharacter : Character
     public bool EarnXPReturnTrueIfLevelUp(int xp)
     {
         Experience += xp;
+
+        while (Experience > NewGameInformation.LevelUpThresholds[Level])
+        {
+            Level++;
+            Debug.Log(Name + " got a level up");
+        }
+
         return false;
     }
 
