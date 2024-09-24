@@ -19,6 +19,15 @@ public class sPlayerInterior : MonoBehaviour
     private sButton buttonAffordance;
     private sContainer containerAffordance;
 
+    //Combat
+    private Vector3 lastTurnPosition;
+    private float distanceTraveled = 0f;
+    private float combatDistance = 10f;
+
+    //Gravity
+    [SerializeField] private LayerMask worldLayerMask;
+    private RaycastHit worldHit;
+
     void Start()
     {
         gM = GameManager.instance;
@@ -46,18 +55,43 @@ public class sPlayerInterior : MonoBehaviour
                 gM.LoadInteriorScene(doorAffordance.interiorSubSceneName, doorAffordance.newScenePosition);
             }
         }
+
+        if (GameConstants.CombatChanceInteriors(distanceTraveled))
+        {
+            gM.LoadBattleScene(transform.position);
+            Destroy(this.gameObject);
+        }
     }
 
     private void FixedUpdate()
     {
+        lastTurnPosition = transform.position;
+
         Vector3 inputVector = new Vector3(
             Input.GetKey(KeyCode.D) ? 1 : Input.GetKey(KeyCode.A) ? -1 : 0, 0, 
             Input.GetKey(KeyCode.W) ? 1 : Input.GetKey(KeyCode.S) ? -1 : 0
             ).normalized * playerSpeed * Time.deltaTime;
 
+        if (!cC.isGrounded)
+        {
+            if (Physics.Raycast(transform.position, Vector3.down, out worldHit, 100f, worldLayerMask))
+            {
+                inputVector.y = -1;
+            }
+        }
+
         //set velocity
         cC.Move(inputVector);
         meshTransform.LookAt(transform.position + inputVector);
+
+        //Movement change
+        distanceTraveled += (transform.position - lastTurnPosition).magnitude;
+
+        if (distanceTraveled > combatDistance)
+        {
+            gM.LoadBattleScene(transform.position);
+            Destroy(this.gameObject);
+        }
     }
 
     private void OnTriggerEnter(Collider other)

@@ -2,10 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class sGenericSelectButton: MonoBehaviour, IPointerEnterHandler
 {
     private BattleManager bM;
+
+    [SerializeField] private Button button;
+    [SerializeField] private TMPro.TextMeshProUGUI text;
 
     private SelectPanelType selectType;
     private Character charThisButtonRepresents;
@@ -15,8 +19,6 @@ public class sGenericSelectButton: MonoBehaviour, IPointerEnterHandler
     private Transform parentAdditionalPanelParent;
 
     private BattleChoice choices;
-
-    [SerializeField] private TMPro.TextMeshProUGUI text;
 
     private void Start()
     {
@@ -44,9 +46,15 @@ public class sGenericSelectButton: MonoBehaviour, IPointerEnterHandler
 
         choices = prevChoices; //INTAKE LAST CHOICES
 
+        if (choices.Chooser.MP < spellThisButtonRepresents.MPCost)
+        {
+            button.interactable = false;
+            text.color = Color.red;
+        }
+
         //Display
         parentAdditionalPanelParent = parentPanelParent;
-        text.text = spellThisButtonRepresents.Name;
+        text.text = spellThisButtonRepresents.Name + " " + spellThisButtonRepresents.MPCost;
     }
 
     public void FillButtonItemInfo(Item item, Transform parentPanelParent, BattleChoice prevChoices)
@@ -106,10 +114,6 @@ public class sGenericSelectButton: MonoBehaviour, IPointerEnterHandler
         if (selectType == SelectPanelType.ENEMY && charThisButtonRepresents != null)
         {
             bM.Spotlight(charThisButtonRepresents.animator.gameObject.transform.position);
-        }
-        else
-        {
-            print("Couldnt find associated enemy!");
         }
     }
 }

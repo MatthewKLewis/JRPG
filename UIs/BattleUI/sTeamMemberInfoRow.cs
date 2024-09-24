@@ -20,8 +20,8 @@ public class sTeamMemberInfoRow : MonoBehaviour
         healthSlider.value = ((float)character.Health / (float)character.MaxHealth);
         mpSlider.value = ((float)character.MP / (float)character.MaxMP);
 
-        healthText.text = character.Health.ToString("000") + " / " + character.MaxHealth.ToString("000");
-        mpText.text = character.MP.ToString("000") + " / " + character.MaxMP.ToString("000");
+        healthText.text = character.Health.ToString("000");
+        mpText.text = character.MP.ToString("000");
     }
 
     public void FillInfo(Character characterInfo)

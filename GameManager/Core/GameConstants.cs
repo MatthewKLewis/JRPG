@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class NewGameInformation
+public static class GameConstants
 {
+    public static float LOAD_SCREEN_PAD_S = 0.6f;
+
     public static SaveGame STARTING_SAVE_FILE = new SaveGame()
     {
         dateCreated = DateTime.Now.ToString(),
@@ -62,4 +64,28 @@ public static class NewGameInformation
     };
 
     public static int[] LevelUpThresholds = new int[] { 1000, 2000, 4000, 8000, 16000, 32000, 64000, 128000, 256000, 512000, 1024000, 2048000, 4096000 };
+
+    public static bool CombatChanceOverworld(float distanceMoved, float multiplier = 1)
+    {
+        if (distanceMoved > 25f)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    public static bool CombatChanceInteriors(float distanceMoved, float multiplier = 1)
+    {
+        if (distanceMoved > 15f)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 }

@@ -98,7 +98,7 @@ public class PlayerCharacter : Character
     {
         Experience += xp;
 
-        while (Experience > NewGameInformation.LevelUpThresholds[Level])
+        while (Experience > GameConstants.LevelUpThresholds[Level])
         {
             Level++;
             Debug.Log(Name + " got a level up");

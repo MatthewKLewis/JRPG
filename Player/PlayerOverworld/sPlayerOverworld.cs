@@ -37,7 +37,7 @@ public class sPlayerOverworld : MonoBehaviour
             }
         }
 
-        if (distanceTraveled > combatDistance)
+        if (GameConstants.CombatChanceOverworld(distanceTraveled))
         {
             gM.LoadBattleScene(transform.position);
             Destroy(this.gameObject);
@@ -67,9 +67,8 @@ public class sPlayerOverworld : MonoBehaviour
         transform.Rotate(inputRotate);
         cC.Move(transform.TransformDirection(inputVector));
 
-        //Movement change here?
+        //Movement change
         distanceTraveled += (transform.position - lastTurnPosition).magnitude;
-        //print(distanceTraveled.ToString("00.00"));
 
         //World Wrapping
         if (transform.position.x > 250) { print("teleport E-W"); transform.position = new Vector3(-249.9f, transform.position.y, transform.position.z); }

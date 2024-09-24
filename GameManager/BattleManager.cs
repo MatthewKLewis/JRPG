@@ -43,6 +43,7 @@ public enum BuffEnum
 public class BattleChoice
 {
     public Character Target = null;
+    public Character Chooser = null;
     public Spell Spell = null;
     public Item Item = null;
 
@@ -195,10 +196,10 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
         //while two combatants have the same inititive, one must go higher.
 
         //list
-        foreach (Character combatant in combatants)
-        {
-            print(combatant.Name + ": " + combatant.Initiative);
-        }
+        //foreach (Character combatant in combatants)
+        //{
+        //    print(combatant.Name + ": " + combatant.Initiative);
+        //}
 
         ToggleCombatButtons(false);
         StartCoroutine(FlyoverThenAdvanceTurn());
@@ -287,18 +288,18 @@ public class BattleManager : MonoBehaviour, IPointerClickHandler
     public void AttackButton()
     {
         DestroyAllChildrenOf(originalSelectPanelParent);
-        Instantiate(genericSelectPanel, originalSelectPanelParent).GetComponent<sGenericSelectPanel>().FillCharInfo(LivingAICharacters, new BattleChoice());
+        Instantiate(genericSelectPanel, originalSelectPanelParent).GetComponent<sGenericSelectPanel>().FillCharInfo(LivingAICharacters, new BattleChoice() { Chooser = ActiveCharacter});
     }
     public void MagicButton()
     {
         DestroyAllChildrenOf(originalSelectPanelParent);
-        Instantiate(genericSelectPanel, originalSelectPanelParent).GetComponent<sGenericSelectPanel>().FillSpellInfo(ActiveCharacter.SpellsKnown, new BattleChoice());
+        Instantiate(genericSelectPanel, originalSelectPanelParent).GetComponent<sGenericSelectPanel>().FillSpellInfo(ActiveCharacter.SpellsKnown, new BattleChoice() { Chooser = ActiveCharacter });
 
     }
     public void ItemButton()
     {
         DestroyAllChildrenOf(originalSelectPanelParent);
-        Instantiate(genericSelectPanel, originalSelectPanelParent).GetComponent<sGenericSelectPanel>().FillItemInfo(gM.activeSave.inventory, new BattleChoice());
+        Instantiate(genericSelectPanel, originalSelectPanelParent).GetComponent<sGenericSelectPanel>().FillItemInfo(gM.activeSave.inventory, new BattleChoice() { Chooser = ActiveCharacter });
     }
 
 

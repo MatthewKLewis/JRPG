@@ -70,7 +70,7 @@ public class GameManager : MonoBehaviour
         }
         if (SceneManager.GetActiveScene().name == "InteriorScene")
         {
-            LoadInteriorScene("HouseSubScene", Vector3.zero);
+            LoadInteriorScene("DemoSubScene1", Vector3.zero);
         }
 
         loadingScreen.SetActive(false);
@@ -130,7 +130,7 @@ public class GameManager : MonoBehaviour
     public void StartNewGame()
     {
         print("Start Game!");
-        activeSave = NewGameInformation.STARTING_SAVE_FILE;
+        activeSave = GameConstants.STARTING_SAVE_FILE;
         LoadInteriorScene(activeSave.subSceneName, new Vector3(activeSave.x, activeSave.y, activeSave.z));
     }
     public void LoadSavedGame(int slot)
@@ -269,8 +269,7 @@ public class GameManager : MonoBehaviour
             //print(progressValue);
             yield return null;
         }
-        yield return new WaitForSeconds(0.5f);
-        print(loadingScreenImage.color);
+        yield return new WaitForSeconds(GameConstants.LOAD_SCREEN_PAD_S);
         operation.allowSceneActivation = true;
         subOperation.allowSceneActivation = true;
         yield return null;
@@ -310,10 +309,10 @@ public class GameManager : MonoBehaviour
             loadingScreen.SetActive(true);
             yield return null;
             float time = 0f;
-            while (time < 1f)
+            while (time < 1)
             {
-                time += Time.deltaTime;
-                float clampedOpacity = Mathf.Clamp(time, 0f, 1f);
+                time += Time.deltaTime / GameConstants.LOAD_SCREEN_PAD_S;
+                float clampedOpacity = Mathf.Clamp01(time);
                 loadingScreenImage.color = new Color(1, 1, 1, clampedOpacity); //losing opacity
                 yield return null;
             }
@@ -323,10 +322,10 @@ public class GameManager : MonoBehaviour
             loadingScreenImage.color = Color.white;
             yield return null;
             float time = 1f;
-            while (time > 0f)
+            while (time > 0)
             {
-                time -= Time.deltaTime;
-                float clampedOpacity = Mathf.Clamp(time, 0f, 1f);
+                time -= Time.deltaTime / GameConstants.LOAD_SCREEN_PAD_S;
+                float clampedOpacity = Mathf.Clamp01(time);
                 loadingScreenImage.color = new Color(1, 1, 1, clampedOpacity); //losing opacity
                 yield return null;
             }
