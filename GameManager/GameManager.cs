@@ -70,7 +70,7 @@ public class GameManager : MonoBehaviour
         }
         if (SceneManager.GetActiveScene().name == "InteriorScene")
         {
-            LoadInteriorScene("DemoSubScene1", Vector3.zero);
+            LoadInteriorScene("CrossHallSubscene", Vector3.zero); //OrthoPrerenderedSubscene
         }
 
         loadingScreen.SetActive(false);
@@ -225,9 +225,7 @@ public class GameManager : MonoBehaviour
     }
     private IEnumerator LoadInteriorSceneRoutine(string subSceneName, Vector3 position)
     {
-        loadingScreen.SetActive(true);
-
-        yield return new WaitForSeconds(0.5f);
+        StartCoroutine(FadeInOutLoadingScreen(true));
 
         //load frame scene
         AsyncOperation frameSceneLoad = SceneManager.LoadSceneAsync("InteriorScene");
@@ -241,18 +239,17 @@ public class GameManager : MonoBehaviour
             //print(progressValue);
             yield return null;
         }
+        yield return new WaitForSeconds(GameConstants.LOAD_SCREEN_PAD_S);
         frameSceneLoad.allowSceneActivation = true;
         subSceneLoad.allowSceneActivation = true;
-        yield return new WaitForSeconds(0.5f);
+        yield return null;
 
         //interior stuff
+        activeSave.subSceneName = subSceneName;
+        activeSave.onOverworldMap = false;
         Instantiate(playerInteriorPrefab, position, Quaternion.identity, null);
 
-        //mark the save correctly
-        activeSave.onOverworldMap = false;
-        activeSave.subSceneName = subSceneName;
-
-        loadingScreen.SetActive(false);
+        StartCoroutine(FadeInOutLoadingScreen(false));
     }
     private IEnumerator LoadBattleSceneRoutine()
     {
@@ -275,9 +272,6 @@ public class GameManager : MonoBehaviour
         yield return null;
 
         StartCoroutine(FadeInOutLoadingScreen(false));
-
-        //Battle Music
-        PlayMusicTrack(1);
     }
     private IEnumerator LoadRewardsSceneRoutine(BattleResults battleResults)
     {

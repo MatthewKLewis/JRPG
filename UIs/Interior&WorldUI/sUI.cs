@@ -88,9 +88,13 @@ public class sInteriorUI : MonoBehaviour
     //HANDLERS
     private void HandleConversationStart(sNPC npc)
     {
+        Camera activeCamera = GameObject.Find("PlayerCamera").GetComponent<Camera>();
+        Vector3 screenPos = activeCamera.WorldToScreenPoint(npc.spotOverHead);
+
+        print(screenPos);
+        conversationPanel.position = new Vector3(screenPos.x, screenPos.y, 0f);
         conversationPanel.localScale = Vector3.one;
         conversationText.text = npc.utterance;
-        print(npc.utterance);
     }
     private void HandleConversationEnd()
     {

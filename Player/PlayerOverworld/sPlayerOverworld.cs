@@ -16,7 +16,6 @@ public class sPlayerOverworld : MonoBehaviour
 
     private Vector3 lastTurnPosition;
     private float distanceTraveled = 0f;
-    private float combatDistance = 10f;
 
     [SerializeField] private LayerMask worldLayerMask;
     private RaycastHit worldHit;

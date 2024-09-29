@@ -12,7 +12,7 @@ public static class GameConstants
         dateCreated = DateTime.Now.ToString(),
 
         //LOCATIONS
-        subSceneName = "HouseSubScene",
+        subSceneName = "CrossHallSubscene",
         onOverworldMap = false,
         x = 0,
         y = 0,
@@ -67,25 +67,27 @@ public static class GameConstants
 
     public static bool CombatChanceOverworld(float distanceMoved, float multiplier = 1)
     {
-        if (distanceMoved > 25f)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return false;
+        //if (distanceMoved > 100f)
+        //{
+        //    return true;
+        //}
+        //else
+        //{
+        //    return false;
+        //}
     }
 
     public static bool CombatChanceInteriors(float distanceMoved, float multiplier = 1)
     {
-        if (distanceMoved > 15f)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return false;
+        //if (distanceMoved > 100f)
+        //{
+        //    return true;
+        //}
+        //else
+        //{
+        //    return false;
+        //}
     }
 }

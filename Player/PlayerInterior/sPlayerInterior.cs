@@ -22,7 +22,6 @@ public class sPlayerInterior : MonoBehaviour
     //Combat
     private Vector3 lastTurnPosition;
     private float distanceTraveled = 0f;
-    private float combatDistance = 10f;
 
     //Gravity
     [SerializeField] private LayerMask worldLayerMask;
@@ -85,13 +84,7 @@ public class sPlayerInterior : MonoBehaviour
         meshTransform.LookAt(transform.position + inputVector);
 
         //Movement change
-        distanceTraveled += (transform.position - lastTurnPosition).magnitude;
-
-        if (distanceTraveled > combatDistance)
-        {
-            gM.LoadBattleScene(transform.position);
-            Destroy(this.gameObject);
-        }
+        distanceTraveled += (transform.position - lastTurnPosition).magnitude;        
     }
 
     private void OnTriggerEnter(Collider other)
@@ -105,6 +98,11 @@ public class sPlayerInterior : MonoBehaviour
             case ("Gate"):
                 Actions.OnProximityToInteractable(true, "Leave");
                 gateAffordance = other.GetComponent<sGate>();
+                break;
+            case ("Portal"):
+                print("Change location instantly if we can get a sceneName to " + other.gameObject.name);
+                string nextSceneName = other.gameObject.name.Split('|')[1];
+                gM.LoadInteriorScene(nextSceneName, Vector3.zero);
                 break;
             case ("Container"):
                 Actions.OnProximityToInteractable(true, "Open");
